@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using System.IO;
 using ADOX;
 using System.Data.OleDb;
-using DAO = Microsoft.Office.Interop.Access.Dao;
+
 using Application = System.Windows.Forms.Application;
 using Form = System.Windows.Forms.Form;
 using System.Threading;
@@ -24,9 +24,16 @@ namespace Predilatation
         {
             InitializeComponent();
         }
+        //数据库文件路径
         private static string strDbpath = "";
+        //分析文件夹
         private static string strSelPath = "";
 
+        /// <summary>
+        /// 选择分析文件夹
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Selfiles_Click(object sender, EventArgs e)
         {
             if (this.folderBrowser.ShowDialog() == DialogResult.OK)
@@ -37,15 +44,16 @@ namespace Predilatation
             }
         }
 
+        /// <summary>
+        /// 开始分析
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Start_Click(object sender, EventArgs e)
         {
             string[] files = Directory.GetFiles(this.textBox1.Text);
 
-            if(string.IsNullOrEmpty(strDbpath))
-            {
-                MessageBox.Show("请选择路径！");
-                return;
-            }
+            
 
             try
             {
@@ -53,7 +61,7 @@ namespace Predilatation
                     File.Delete(strDbpath);
 
                 //建库，建表
-                if (CreateAccessDb(strDbpath))
+                if (AccessHelper.CreateAccessDb(strDbpath))
                 {
                     //写数据
                     DateTime start = DateTime.Now;
@@ -65,7 +73,7 @@ namespace Predilatation
                         {
                             string path = files[i];
                             if (Path.GetExtension(path).ToLower() == ".csv")
-                                InsertTable(path);
+                                AccessHelper.InsertTable(path,strDbpath,strSelPath);
 
                         });
                     });
@@ -85,41 +93,46 @@ namespace Predilatation
             }
         }
 
-        /// <summary>
-        /// 写入Access
-        /// </summary>
-        /// <param name="path">csv文件路径</param>
-        private void InsertTable(string path)
+        private string Check()
         {
-            string strTableName = Path.GetFileNameWithoutExtension(path);
-            DAO.DBEngine dbEngine = new DAO.DBEngine();
-            DAO.Database db = dbEngine.OpenDatabase(strDbpath);
-            string sql = "SELECT * INTO [" + strTableName + "] FROM [Text;FMT=Delimited;DATABASE=" + strSelPath + ";HDR=No].[" + strTableName + ".csv]";
-            db.Execute(sql);
-
-            //删除垃圾数据
-            sql = "delete from " + strTableName + " where F2 is null or  F2 = '时间'";
-            db.Execute(sql);
-
-            //增加主键
-            sql = "alter table " + strTableName + " add PRIMARY KEY(F1,F2)";
-            db.Execute(sql);
-            db.Close();
-        }
-
-        /// <summary>
-        /// 创建access数据库
-        /// </summary>
-        /// <param name="filePath">数据库文件的全路径，如 D:\\NewDb.mdb</param>
-        public static bool CreateAccessDb(string filePath)
-        {
-            
-            if (!File.Exists(filePath))
+            string strErrMsg = "";
+            if (string.IsNullOrEmpty(this.textBox1.Text))
             {
-                Catalog catalog = new Catalog();
-                catalog.Create("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filePath + ";Jet OLEDB:Engine Type=5");
+                strErrMsg = "请选择路径！";
             }
-            return true;
+
+            try
+            {
+                string[] files = Directory.GetFiles(this.textBox1.Text);
+                if (files.Length == 0)
+                {
+                    strErrMsg = "所选文件夹无效！";
+                    return strErrMsg;
+                }
+
+                bool bflg = false;
+                foreach (var file in files)
+                {
+                    if (Path.GetExtension(file).ToLower() == ".csv")
+                    {
+                        bflg = true;
+                        break;
+                    }
+                }
+
+                if (!bflg)
+                {
+                    strErrMsg = "所选文件夹中不存在有效文件！";
+                    return strErrMsg;
+                }
+            }
+            catch (Exception e)
+            {
+                strErrMsg = e.Message;
+                return strErrMsg;
+            }
+            return strErrMsg;
         }
+       
     }
 }

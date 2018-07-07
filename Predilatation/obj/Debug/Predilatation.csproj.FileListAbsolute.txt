@@ -29,3 +29,9 @@ C:\Users\Fei\Desktop\Predilatation\Predilatation\obj\Debug\Interop.ADOX.dll
 C:\Users\Fei\Desktop\Predilatation\Predilatation\obj\Debug\Predilatation.csproj.ResolveComReference.cache
 C:\Users\Fei\Desktop\Predilatation\Predilatation\obj\Debug\Predilatation.exe
 C:\Users\Fei\Desktop\Predilatation\Predilatation\obj\Debug\Predilatation.pdb
+C:\Users\Fei\Desktop\Predilatation\Predilatation\bin\Debug\Predilatation.exe
+C:\Users\Fei\Desktop\Predilatation\Predilatation\bin\Debug\Predilatation.pdb
+C:\Users\Fei\Desktop\Predilatation\Predilatation\obj\Debug\Predilatation.csprojResolveAssemblyReference.cache
+C:\Users\Fei\Desktop\Predilatation\Predilatation\obj\Debug\Predilatation.Form1.resources
+C:\Users\Fei\Desktop\Predilatation\Predilatation\obj\Debug\Predilatation.Properties.Resources.resources
+C:\Users\Fei\Desktop\Predilatation\Predilatation\obj\Debug\Predilatation.csproj.GenerateResource.Cache
