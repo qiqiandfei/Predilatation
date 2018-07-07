@@ -15,6 +15,7 @@ using Application = System.Windows.Forms.Application;
 using Form = System.Windows.Forms.Form;
 using System.Threading;
 using System.Data.Common;
+using System.Drawing.Text;
 
 namespace Predilatation
 {
@@ -51,48 +52,66 @@ namespace Predilatation
         /// <param name="e"></param>
         private void Start_Click(object sender, EventArgs e)
         {
-            string[] files = Directory.GetFiles(this.textBox1.Text);
-
-            
-
-            try
+            string strErrMsg = Check();
+            if (string.IsNullOrEmpty(strErrMsg))
             {
-                if (File.Exists(strDbpath))
-                    File.Delete(strDbpath);
-
-                //建库，建表
-                if (AccessHelper.CreateAccessDb(strDbpath))
+                string[] files = Directory.GetFiles(this.textBox1.Text);
+                try
                 {
-                    //写数据
-                    DateTime start = DateTime.Now;
+                    if (File.Exists(strDbpath))
+                        File.Delete(strDbpath);
 
-                    TaskScheduler ts = TaskScheduler.FromCurrentSynchronizationContext();
-                    Task task = new Task(() =>
-                    {
-                        Parallel.For(0, files.Length, i =>
-                        {
-                            string path = files[i];
-                            if (Path.GetExtension(path).ToLower() == ".csv")
-                                AccessHelper.InsertTable(path,strDbpath,strSelPath);
+                    //业务开始
+                    BusinessStart(files);
 
-                        });
-                    });
-
-                    task.ContinueWith((t) =>
-                    {
-                        double elapsedTimeInSeconds = DateTime.Now.Subtract(start).TotalSeconds;
-                        MessageBox.Show("总共耗时：" + elapsedTimeInSeconds.ToString());
-                    }, ts);
-
-                    task.Start();
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show("程序出现错误：" + exception.Message, "提示");
                 }
             }
-            catch (Exception exception)
+            else
             {
-                MessageBox.Show("程序出现错误：" + exception.Message,"提示");
+                MessageBox.Show("程序出现错误：" + strErrMsg, "提示");
             }
+
         }
 
+        private void BusinessStart(string[] files)
+        {
+            //建库，建表
+            if (AccessHelper.CreateAccessDb(strDbpath))
+            {
+                DateTime start = DateTime.Now;
+
+                TaskScheduler ts = TaskScheduler.FromCurrentSynchronizationContext();
+
+                //插入到数据库
+                Task task = new Task(() =>
+                {
+                    Parallel.For(0, files.Length, i =>
+                    {
+                        string path = files[i];
+                        if (Path.GetExtension(path).ToLower() == ".csv")
+                            AccessHelper.InsertTable(path, strDbpath, strSelPath);
+
+                    });
+                });
+
+                task.ContinueWith((t) =>
+                {
+                    double elapsedTimeInSeconds = DateTime.Now.Subtract(start).TotalSeconds;
+                    MessageBox.Show("总共耗时：" + elapsedTimeInSeconds.ToString());
+                }, ts);
+
+                task.Start();
+            }     
+        }
+
+        /// <summary>
+        /// 输入有效性验证
+        /// </summary>
+        /// <returns></returns>
         private string Check()
         {
             string strErrMsg = "";
