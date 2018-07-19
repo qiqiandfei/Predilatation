@@ -8,15 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-using ADOX;
-using System.Data.OleDb;
 
-using Application = System.Windows.Forms.Application;
-using Form = System.Windows.Forms.Form;
-using System.Threading;
-using System.Data.Common;
-using System.Drawing.Text;
-using System.Windows.Forms.VisualStyles;
+
 
 namespace Predilatation
 {
@@ -35,15 +28,6 @@ namespace Predilatation
 
         public static MainParam Param = new MainParam();
 
-        //public static Form1 GetMain()
-        //{
-        //    //判断是否存在该窗体,或时候该字窗体是否被释放过,如果不存在该窗体,则 new 一个字窗体
-        //    if (Main == null || Main.IsDisposed)
-        //    {
-        //        Main = new Form1();
-        //    }
-        //    return Main;
-        //} 
 
         public MainForm()
         {
@@ -76,9 +60,6 @@ namespace Predilatation
         public static string strCurTip = "";
         public static int nProValue = 0;
         private delegate void SetTipHandler();
-
-        
-
 
 
         /// <summary>
@@ -199,13 +180,13 @@ namespace Predilatation
                 Cal.CrtDataDate(strType, strStdTyp, trf);
                 nProValue = 100;
                 ((TipReFresher)trf).CurTip();
-
-                double elapsedTimeInSeconds = DateTime.Now.Subtract(TimeStart).TotalSeconds;
-                MessageBox.Show("总共耗时：" + elapsedTimeInSeconds.ToString());
-
-                strCurTip = "分析结束！";
-                ((TipReFresher)trf).CurTip();
             }
+
+            double elapsedTimeInSeconds = DateTime.Now.Subtract(TimeStart).TotalSeconds;
+            MessageBox.Show("总共耗时：" + elapsedTimeInSeconds.ToString());
+
+            strCurTip = "分析结束！";
+            ((TipReFresher)trf).CurTip();
             
         }
 

@@ -1,0 +1,10 @@
+F:\工作\工具\Predilatation\Predilatation\bin\Debug\Predilatation.exe.config
+F:\工作\工具\Predilatation\Predilatation\bin\Debug\Predilatation.exe
+F:\工作\工具\Predilatation\Predilatation\bin\Debug\Predilatation.pdb
+F:\工作\工具\Predilatation\Predilatation\obj\Debug\Interop.ADODB.dll
+F:\工作\工具\Predilatation\Predilatation\obj\Debug\Interop.ADOX.dll
+F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.csproj.ResolveComReference.cache
+F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.MainForm.resources
+F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.csproj.GenerateResource.Cache
+F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.exe
+F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.pdb
