@@ -18,6 +18,7 @@ namespace Predilatation
         public string strpwd { get; set; }
         public string strConn { get; set; }
         public SqlConnection oConn { get; set; }
+        public SqlCommand oComm{ get; set; }
 
         /// <summary>
         /// 构造函数
@@ -28,8 +29,10 @@ namespace Predilatation
         public SqlServerHelper()
         {
             ReadConfigFile();
-            strConn = "data source=" + strserver + ";Initial Catalog=master;user id=" + struser + ";pwd=" + strpwd;
+            strConn = "data source=" + strserver + ";Initial Catalog=master;user id=" + struser + ";pwd=" + strpwd + ";Connect Timeout=600";
             oConn = new SqlConnection(strConn);
+            oComm = oConn.CreateCommand();
+            oComm.CommandTimeout = 600;
 
         }
 
@@ -42,7 +45,7 @@ namespace Predilatation
         {
             string strErrMsg = "";
             //建立数据库   
-            SqlCommand oComm = this.oConn.CreateCommand();
+            //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
             try
             {
                 this.oConn.Open();
@@ -68,41 +71,110 @@ namespace Predilatation
         }
 
         /// <summary>
+        /// 检查数据库是否存在
+        /// </summary>
+        /// <returns></returns>
+        public string CheckDataBase()
+        {
+            string strErrMsg = "";
+            //建立数据库   
+            //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
+            try
+            {
+                this.oConn.Open();
+                oComm.CommandText = "select name From master.dbo.sysdatabases where name='Predilatation'";
+                string res = (string)oComm.ExecuteScalar();
+                if (res != "Predilatation")
+                {
+
+                    strErrMsg = "尚未创建数据库，请先创建数据库！";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                strErrMsg = ex.Message;
+            }
+
+            oComm.Dispose();
+            this.oConn.Close();
+            return strErrMsg;
+        }
+
+        /// <summary>
+        /// 判断表是否存在
+        /// </summary>
+        /// <param name="strTableName"></param>
+        /// <returns></returns>
+        public string CheckTable(string strTableName)
+        {
+            string strErrMsg = "";
+            //建立数据库   
+            //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
+            try
+            {
+                this.oConn.Open();
+                this.oConn.ChangeDatabase("Predilatation");
+                oComm.CommandText = "select * from sysobjects where  type = 'U' and name = '" + strTableName + "'";
+                string res = (string)oComm.ExecuteScalar();
+                if (res != strTableName)
+                {
+                    if (strTableName.Contains("Before"))
+                    {
+                        strErrMsg = "前N天数据表不存在，请先创建！";
+                    }
+                    if (strTableName.Contains("After"))
+                    {
+                        strErrMsg = "后N天数据表不存在，请先创建！";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                strErrMsg = ex.Message;
+            }
+
+            oComm.Dispose();
+            this.oConn.Close();
+            return strErrMsg;
+        }
+
+        /// <summary>
         /// 创建表
         /// </summary>
         /// <param name="conn"></param>
-        public void CreateTable()
+        public void CreateTable(string strTableName)
         {
             this.oConn.Open();
             this.oConn.ChangeDatabase("Predilatation");       
-            SqlCommand oComm = this.oConn.CreateCommand();
+            //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
             try
             {
-                oComm.CommandText = "if  exists(select * from sysobjects where  type = 'U' and name = 'Tempdata') drop table Tempdata " +
-                                    "create table Tempdata" +
+                oComm.CommandText = "if  exists(select * from sysobjects where  type = 'U' and name = '" + strTableName + "') drop table " + strTableName + " " +
+                                    "create table " + strTableName + "" +
                                     "(cellname varchar(255) not null," +
                                     "time varchar(255) not null," +
-                                    "F1 numeric(18,4)," +
-                                    "F2 numeric(18,4)," +
-                                    "F3 numeric(18,4)," +
-                                    "F4 numeric(18,4)," +
-                                    "F5 numeric(18,4)," +
-                                    "F6 numeric(18,4)," +
-                                    "F7 numeric(18,4)," +
-                                    "F8 numeric(18,4)," +
-                                    "F9 numeric(18,4)," +
-                                    "F10 numeric(18,4)," +
-                                    "F11 numeric(18,4)," +
-                                    "F12 numeric(18,4)," +
-                                    "F13 numeric(18,4)," +
-                                    "F14 numeric(18,4)," +
-                                    "F15 numeric(18,4)," +
-                                    "Derived1 numeric(18,4)," +
-                                    "Derived2 numeric(18,4)," +
-                                    "Derived3 numeric(18,4)," +
-                                    "Derived4 numeric(18,4)," +
-                                    "Derived5 numeric(18,4)," +
-                                    "MaxRate numeric(18,4)," +
+                                    "E_RAB建立成功数 numeric(18,4)," +
+                                    "RRC连接最大数 numeric(18,4)," +
+                                    "有效RRC连接最大数 numeric(18,4)," +
+                                    "有效RRC连接平均数 numeric(18,4)," +
+                                    "LTE_上行业务信息PRB占用率 numeric(18,4)," +
+                                    "LTE_下行业务信息PRB占用率 numeric(18,4)," +
+                                    "PDCCH信道CCE占用率 numeric(18,4)," +
+                                    "小区用户面上行字节数 numeric(18,4)," +
+                                    "小区用户面下行字节数 numeric(18,4)," +
+                                    "上行占用的PRB个数 numeric(18,4)," +
+                                    "RRU_PrbUl_TotalNum numeric(18,4)," +
+                                    "下行占用的PRB个数 numeric(18,4)," +
+                                    "RRU_PrbDl_TotalNum numeric(18,4)," +
+                                    "CCE占用量 numeric(18,4)," +
+                                    "CCE可使用量 numeric(18,4)," +
+                                    "总流量 numeric(18,4)," +
+                                    "上行PUSCH_PRB利用率 numeric(18,4)," +
+                                    "下行PDSCH_PRB利用率 numeric(18,4)," +
+                                    "下行PDCCH_PRB利用率 numeric(18,4)," +
+                                    "平均E_RAB流量 numeric(18,4)," +
+                                    "最大利用率 numeric(18,4)," +
                                     "FlowBusy varchar(255),"+
                                     "Utilizaerate varchar(255))";
                 oComm.ExecuteNonQuery();
@@ -110,7 +182,7 @@ namespace Predilatation
             }
             catch (Exception e)
             {
-                throw e;
+                throw ;
             }
             finally
             {
@@ -126,15 +198,15 @@ namespace Predilatation
         {
             this.oConn.Open();
             this.oConn.ChangeDatabase("Predilatation");
-            SqlCommand oComm = this.oConn.CreateCommand();
+            //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
             try
             {
                 oComm.CommandText = "alter table " + strTableName + " add constraint " + strPK_Name + " primary key (" + strKey + ")";
                 oComm.ExecuteNonQuery();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw ;
             }
             finally
             {
@@ -159,7 +231,7 @@ namespace Predilatation
         /// </summary>
         /// <param name="files"></param>
         /// <returns></returns>
-        public void GetTablefromFile(string[] files,object trf)
+        public void GetTablefromFile(string[] files,object trf,string strTableName)
         {
             DataTable dt = GetTable();
             foreach (var file in files)
@@ -229,8 +301,8 @@ namespace Predilatation
                     dt.Rows.Add(dtrow);
                 }
                 MainForm.strCurTip = "正在将" + strFileName + "写入数据库...";
-                ((TipReFresher)trf).CurTip();
-                BulkToDB(dt, "Tempdata");
+                ((TipReFresher) trf).CurTip();
+                BulkToDB(dt,strTableName);
                 //计算进度条
                 MainForm.nProValue += (int)Math.Ceiling(Convert.ToDouble(100 / (double)files.Length));
                 ((TipReFresher)trf).CurTip();
@@ -262,9 +334,9 @@ namespace Predilatation
                         }
                         sqlbulkcopy.WriteToServer(dt);
                     }
-                    catch (System.Exception ex)
+                    catch (System.Exception)
                     {
-                        throw ex;
+                        throw;
                     }
                     finally
                     {
@@ -279,15 +351,15 @@ namespace Predilatation
         /// </summary>
         private void DelTempTable(string strTableName)
         {
-            SqlCommand oComm = this.oConn.CreateCommand();
+            //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
             try
             {
                 oComm.CommandText = "if  exists(select * from sysobjects where  type = 'U' and name = '" + strTableName + "') drop table " + strTableName;
                 oComm.ExecuteNonQuery();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
             finally
             {
@@ -305,27 +377,27 @@ namespace Predilatation
             dt.Columns.AddRange(new DataColumn[]{  
             new DataColumn("cellname",typeof(string)),  
             new DataColumn("time",typeof(string)),  
-            new DataColumn("F1",typeof(double)),
-            new DataColumn("F2",typeof(double)),
-            new DataColumn("F3",typeof(double)),
-            new DataColumn("F4",typeof(double)),
-            new DataColumn("F5",typeof(double)),
-            new DataColumn("F6",typeof(double)),
-            new DataColumn("F7",typeof(double)),
-            new DataColumn("F8",typeof(double)),
-            new DataColumn("F9",typeof(double)),
-            new DataColumn("F10",typeof(double)),
-            new DataColumn("F11",typeof(double)),
-            new DataColumn("F12",typeof(double)),
-            new DataColumn("F13",typeof(double)),
-            new DataColumn("F14",typeof(double)),
-            new DataColumn("F15",typeof(double)),
-            new DataColumn("Derived1",typeof(double)),
-            new DataColumn("Derived2",typeof(double)),
-            new DataColumn("Derived3",typeof(double)),
-            new DataColumn("Derived4",typeof(double)),
-            new DataColumn("Derived5",typeof(double)),
-            new DataColumn("MaxRate",typeof(double)),
+            new DataColumn("E_RAB建立成功数",typeof(double)),
+            new DataColumn("RRC连接最大数",typeof(double)),
+            new DataColumn("有效RRC连接最大数",typeof(double)),
+            new DataColumn("有效RRC连接平均数",typeof(double)),
+            new DataColumn("LTE_上行业务信息PRB占用率",typeof(double)),
+            new DataColumn("LTE_下行业务信息PRB占用率",typeof(double)),
+            new DataColumn("PDCCH信道CCE占用率",typeof(double)),
+            new DataColumn("小区用户面上行字节数",typeof(double)),
+            new DataColumn("小区用户面下行字节数",typeof(double)),
+            new DataColumn("上行占用的PRB个数",typeof(double)),
+            new DataColumn("RRU_PrbUl_TotalNum",typeof(double)),
+            new DataColumn("下行占用的PRB个数",typeof(double)),
+            new DataColumn("RRU_PrbDl_TotalNum",typeof(double)),
+            new DataColumn("CCE占用量",typeof(double)),
+            new DataColumn("CCE可使用量",typeof(double)),
+            new DataColumn("总流量",typeof(double)),
+            new DataColumn("上行PUSCH_PRB利用率",typeof(double)),
+            new DataColumn("下行PDSCH_PRB利用率",typeof(double)),
+            new DataColumn("下行PDCCH_PRB利用率",typeof(double)),
+            new DataColumn("平均E_RAB流量",typeof(double)),
+            new DataColumn("最大利用率",typeof(double)),
             new DataColumn("FlowBusy",typeof(string)),
             new DataColumn("Utilizaerate",typeof(string))});    
             return dt;
@@ -335,13 +407,13 @@ namespace Predilatation
         /// 清洗无效数据
         /// </summary>
         /// <param name="files"></param>
-        public void DataClean(string[] files,object trf)
+        public void DataClean(string[] files,object trf,string strTableName)
         {
             string strTime_s = "";
             string strTime_d = "";
             this.oConn.Open();
             this.oConn.ChangeDatabase("Predilatation");
-            SqlCommand oComm = this.oConn.CreateCommand();
+            //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
             for (int i = 0; i < files.Length; i++)
             {
                 if (Path.GetExtension(files[i]).ToLower() != ".csv")
@@ -356,12 +428,12 @@ namespace Predilatation
                     strTime_d = Path.GetFileNameWithoutExtension(files[j]);
                     if (strTime_s != strTime_d)
                     {
-                        oComm.CommandText = "delete from Tempdata where cellname in (SELECT distinct(cellname) FROM Tempdata where (F1 = -1234567890123.1234 or F2 = -1234567890123.1234 or F3 = -1234567890123.1234 or F4 = -1234567890123.1234 or F5 = -1234567890123.1234 or F6 = -1234567890123.1234 or F7 = -1234567890123.1234 or F8 = -1234567890123.1234 or F9 = -1234567890123.1234 or F10 = -1234567890123.1234 or F11 = -1234567890123.1234 or F12 = -1234567890123.1234 or F13 = -1234567890123.1234 or F14 = -1234567890123.1234 or F15 = -1234567890123.1234) and time like '" + strTime_s + "%') and time like '" + strTime_d + "%'";
+                        oComm.CommandText = "delete from " + strTableName + " where cellname in (SELECT distinct(cellname) FROM " + strTableName + " where (E_RAB建立成功数 = -1234567890123.1234 or RRC连接最大数 = -1234567890123.1234 or 有效RRC连接最大数 = -1234567890123.1234 or 有效RRC连接平均数 = -1234567890123.1234 or LTE_上行业务信息PRB占用率 = -1234567890123.1234 or LTE_下行业务信息PRB占用率 = -1234567890123.1234 or PDCCH信道CCE占用率 = -1234567890123.1234 or 小区用户面上行字节数 = -1234567890123.1234 or 小区用户面下行字节数 = -1234567890123.1234 or 上行占用的PRB个数 = -1234567890123.1234 or RRU_PrbUl_TotalNum = -1234567890123.1234 or 下行占用的PRB个数 = -1234567890123.1234 or RRU_PrbDl_TotalNum = -1234567890123.1234 or CCE占用量 = -1234567890123.1234 or CCE可使用量 = -1234567890123.1234) and time like '" + strTime_s + "%') and time like '" + strTime_d + "%'";
                         oComm.ExecuteNonQuery();
                         
                     }
                 }
-                oComm.CommandText = "delete FROM Tempdata where (F1 = -1234567890123.1234 or F2 = -1234567890123.1234 or F3 = -1234567890123.1234 or F4 = -1234567890123.1234 or F5 = -1234567890123.1234 or F6 = -1234567890123.1234 or F7 = -1234567890123.1234 or F8 = -1234567890123.1234 or F9 = -1234567890123.1234 or F10 = -1234567890123.1234 or F11 = -1234567890123.1234 or F12 = -1234567890123.1234 or F13 = -1234567890123.1234 or F14 = -1234567890123.1234 or F15 = -1234567890123.1234) and time like '" + strTime_s + "%'";
+                oComm.CommandText = "delete FROM " + strTableName + " where (E_RAB建立成功数 = -1234567890123.1234 or RRC连接最大数 = -1234567890123.1234 or 有效RRC连接最大数 = -1234567890123.1234 or 有效RRC连接平均数 = -1234567890123.1234 or LTE_上行业务信息PRB占用率 = -1234567890123.1234 or LTE_下行业务信息PRB占用率 = -1234567890123.1234 or PDCCH信道CCE占用率 = -1234567890123.1234 or 小区用户面上行字节数 = -1234567890123.1234 or 小区用户面下行字节数 = -1234567890123.1234 or 上行占用的PRB个数 = -1234567890123.1234 or RRU_PrbUl_TotalNum = -1234567890123.1234 or 下行占用的PRB个数 = -1234567890123.1234 or RRU_PrbDl_TotalNum = -1234567890123.1234 or CCE占用量 = -1234567890123.1234 or CCE可使用量 = -1234567890123.1234) and time like '" + strTime_s + "%'";
                 oComm.ExecuteNonQuery();
                 //计算进度条
                 MainForm.nProValue += (int)Math.Ceiling(Convert.ToDouble(100 / (double)files.Length));
@@ -373,44 +445,43 @@ namespace Predilatation
         /// <summary>
         /// 计算流量自忙时
         /// </summary>
-        public void CalculateBusy_Flow()
+        public void CalculateBusy_Flow(string strTableName,string FlowTableName)
         {
 
             this.oConn.Open();
             this.oConn.ChangeDatabase("Predilatation");
-            SqlCommand oComm = this.oConn.CreateCommand();
             try
             {
                 //删除临时表
-                DelTempTable("Flowbusy");
+                DelTempTable(FlowTableName);
 
                 //清空流量自忙时标识
-                oComm.CommandText = "update tempdata set flowbusy = ''";
+                oComm.CommandText = "update " + strTableName + " set flowbusy = ''";
                 oComm.ExecuteNonQuery();
 
                 //创建临时表
-                oComm.CommandText = "select cellname,time,derived1,derived2,derived3,derived4,maxrate into Flowbusy " +
-                                    "from tempdata a," +
-                                    "(select b.cellname cellnamen, max(b.derived1) derived1n,SUBSTRING(time,1,10) timen " +
-                                    "from tempdata b where b.derived1 > 0 " +
+                oComm.CommandText = "select cellname,time,E_RAB建立成功数,RRC连接最大数,有效RRC连接最大数,有效RRC连接平均数,LTE_上行业务信息PRB占用率,LTE_下行业务信息PRB占用率,PDCCH信道CCE占用率,小区用户面上行字节数,小区用户面下行字节数,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,下行PDCCH_PRB利用率,最大利用率 into " + FlowTableName +
+                                    " from " + strTableName + " a," +
+                                    "(select b.cellname cellnamen, max(b.总流量) derived1n,SUBSTRING(time,1,10) timen " +
+                                    "from " + strTableName + " b where b.总流量 > 0 " +
                                     "group by b.cellname," +
                                     "SUBSTRING(time,1,10)) c " +
                                     "where a.cellname = c.cellnamen " +
-                                    "and a.derived1 = c.derived1n " +
+                                    "and a.总流量 = c.derived1n " +
                                     "and SUBSTRING(time,1,10)=c.timen";
                 oComm.ExecuteNonQuery();
 
                 //删除冗余数据
-                DelFlowData();
+                DelFlowData(FlowTableName);
 
                 //修改流量自忙时标识
-                oComm.CommandText = "update tempdata set flowbusy = '流量自忙时' where exists(select 1 from Flowbusy b where tempdata.cellname = b.cellname and tempdata.time = b.time)";
+                oComm.CommandText = "update " + strTableName + " set flowbusy = '流量自忙时' where exists(select 1 from " + FlowTableName + " b where " + strTableName + ".cellname = b.cellname and " + strTableName + ".time = b.time)";
                 oComm.ExecuteNonQuery();
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
             finally
             {
@@ -422,18 +493,18 @@ namespace Predilatation
         /// <summary>
         /// 删除流量自忙时冗余数据
         /// </summary>
-        private void DelFlowData()
+        private void DelFlowData(string strTableName)
         {
             List<string[]> lstTemp = new List<string[]>();
-            SqlCommand oComm = this.oConn.CreateCommand();
-            oComm.CommandText = "select cellname,time,derived1,derived2,derived3,derived4,maxrate " +
-                                "from Flowbusy a, " +
+            //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
+            oComm.CommandText = "select cellname,time,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,下行PDCCH_PRB利用率,最大利用率 " +
+                                "from " + strTableName + " a, " +
                                 "(select b.cellname cellnamen,SUBSTRING(time,1,10) timen " +
-                                "from Flowbusy b " +
+                                "from " + strTableName + " b " +
                                 "group by b.cellname," +
                                 "SUBSTRING(time,1,10) having COUNT(SUBSTRING(time,1,10))>1) c " +
                                 "where a.cellname = c.cellnamen " +
-                                "and SUBSTRING(time,1,10)=c.timen order by cellname,SUBSTRING(time,1,10),maxrate desc";
+                                "and SUBSTRING(time,1,10)=c.timen order by cellname,SUBSTRING(time,1,10),最大利用率 desc";
             SqlDataReader dr = oComm.ExecuteReader();
             while (dr.Read())
             {
@@ -462,7 +533,7 @@ namespace Predilatation
             //删除冗余数据
             for (int i = 0; i < DelList.Count; i++)
             {
-                oComm.CommandText = "delete from Flowbusy where cellname = '"+DelList[i][0]+"' and time = '"+ DelList[i][1] +"'";
+                oComm.CommandText = "delete from " + strTableName + " where cellname = '" + DelList[i][0] + "' and time = '" + DelList[i][1] + "'";
                 oComm.ExecuteNonQuery();
             }
         }
@@ -470,43 +541,42 @@ namespace Predilatation
         /// <summary>
         /// 计算利用率自忙时
         /// </summary>
-        public void CalculateBusy_Utilizaerate()
+        public void CalculateBusy_Utilizaerate(string strTableName, string strUtilizaerateName)
         {
             this.oConn.Open();
             this.oConn.ChangeDatabase("Predilatation");
-            SqlCommand oComm = this.oConn.CreateCommand();
             try
             {
                 //删除临时表
-                DelTempTable("Utilizaerate");
+                DelTempTable(strUtilizaerateName);
 
                 //清空利用率自忙时标识
-                oComm.CommandText = "update tempdata set Utilizaerate = ''";
+                oComm.CommandText = "update " + strTableName + " set Utilizaerate = ''";
                 oComm.ExecuteNonQuery();
 
                 //创建临时表
-                oComm.CommandText = "select cellname,time,derived1,derived2,derived3,derived4,MaxRate into Utilizaerate " +
-                                    "from tempdata a, " +
-                                    "(select b.cellname cellnamen, max(b.MaxRate) maxraten,SUBSTRING(time,1,10) timen " +
-                                    "from tempdata b where b.MaxRate > 0 " +
+                oComm.CommandText = "select cellname,time,E_RAB建立成功数,RRC连接最大数,有效RRC连接最大数,有效RRC连接平均数,LTE_上行业务信息PRB占用率,LTE_下行业务信息PRB占用率,PDCCH信道CCE占用率,小区用户面上行字节数,小区用户面下行字节数,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,下行PDCCH_PRB利用率,最大利用率 into " + strUtilizaerateName +
+                                    " from " + strTableName + " a, " +
+                                    "(select b.cellname cellnamen, max(b.最大利用率) maxraten,SUBSTRING(time,1,10) timen " +
+                                    "from " + strTableName + " b where b.最大利用率 > 0 " +
                                     "group by b.cellname, " +
                                     "SUBSTRING(time,1,10)) c " +
                                     "where a.cellname = c.cellnamen " +
-                                    "and a.maxrate = c.maxraten " +
+                                    "and a.最大利用率 = c.maxraten " +
                                     "and SUBSTRING(time,1,10)=c.timen";
                 oComm.ExecuteNonQuery();
 
                 //删除利用率自忙时冗余数据
-                DelUtilizaerateData();
+                DelUtilizaerateData(strUtilizaerateName);
 
                 //修改利用率自忙时标识
-                oComm.CommandText = "update tempdata set Utilizaerate = '利用率自忙时' where exists(select 1 from Utilizaerate b where tempdata.cellname = b.cellname and tempdata.time = b.time)";
+                oComm.CommandText = "update " + strTableName + " set Utilizaerate = '利用率自忙时' where exists(select 1 from " + strUtilizaerateName + " b where " + strTableName + ".cellname = b.cellname and " + strTableName + ".time = b.time)";
                 oComm.ExecuteNonQuery();
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
             finally
             {
@@ -518,19 +588,19 @@ namespace Predilatation
         /// <summary>
         /// 删除利用率自忙时冗余数据
         /// </summary>
-        private void DelUtilizaerateData()
+        private void DelUtilizaerateData(string strTableName)
         {
             List<string[]> lstTemp = new List<string[]>();
-            SqlCommand oComm = this.oConn.CreateCommand();
-            oComm.CommandText = "select cellname,time,derived1,derived2,derived3,derived4,MaxRate " +
-                                "from Utilizaerate a, " +
-                                "(select b.cellname cellnamen, max(b.MaxRate) maxraten,SUBSTRING(time,1,10) timen " +
-                                "from Utilizaerate b where b.MaxRate > 0 " +
+            //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
+            oComm.CommandText = "select cellname,time,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,下行PDCCH_PRB利用率,最大利用率 " +
+                                "from " + strTableName + " a, " +
+                                "(select b.cellname cellnamen, max(b.最大利用率) maxraten,SUBSTRING(time,1,10) timen " +
+                                "from " + strTableName + " b where b.最大利用率 > 0 " +
                                 "group by b.cellname, " +
                                 "SUBSTRING(time,1,10) having COUNT(SUBSTRING(time,1,10))>1) c " +
                                 "where a.cellname = c.cellnamen " +
                                 "and SUBSTRING(time,1,10)=c.timen " +
-                                "order by cellname,SUBSTRING(time,1,10),derived1 desc";
+                                "order by cellname,SUBSTRING(time,1,10),总流量 desc";
             SqlDataReader dr = oComm.ExecuteReader();
             while (dr.Read())
             {
@@ -559,8 +629,32 @@ namespace Predilatation
             //删除冗余数据
             for (int i = 0; i < DelList.Count; i++)
             {
-                oComm.CommandText = "delete from Utilizaerate where cellname = '" + DelList[i][0] + "' and time = '" + DelList[i][1] + "'";
+                oComm.CommandText = "delete from " + strTableName + " where cellname = '" + DelList[i][0] + "' and time = '" + DelList[i][1] + "'";
                 oComm.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// 数据同步
+        /// </summary>
+        public void DataSync()
+        {
+           
+            try
+            {
+                this.oConn.Open();
+                this.oConn.ChangeDatabase("Predilatation");
+                //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
+                oComm.CommandText = "delete from Tempdata_After where cellname not in (select distinct(cellname) from Tempdata_Before)";
+                oComm.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+            finally
+            {
+                this.oConn.Close();
             }
         }
 

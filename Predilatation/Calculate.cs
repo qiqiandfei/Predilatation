@@ -27,7 +27,7 @@ namespace Predilatation
         /// </summary>
         /// <param name="strTyp"></param>
         /// <param name="strStdTyp"></param>
-        public void CrtAvgData(string strTyp, string strStdTyp,object trf)
+        public void CrtAvgData(string strTyp, string strStdTyp,object trf,string TableName,string AorB)
         {
             try
             {
@@ -35,80 +35,21 @@ namespace Predilatation
                 this.oConn.ChangeDatabase("Predilatation");
                 SqlCommand oComm = this.oConn.CreateCommand();
                 oComm.CommandText = "select cellname, " +
-                             "AVG(Derived5) as 'E-RAB(KB)', " +
-                             "AVG(F4) as '平均RRC有效用户数', " +
-                             "AVG(Derived2) as '上行PUSCH PRB利用率', " +
-                             "AVG(F8)/(1024*1024) as '上行流量(G)', " +
-                             "AVG(Derived3) as '下行PDSCH PRB利用率', " +
-                             "AVG(Derived4) as '下行PDCCH CCE利用率', " +
-                             "AVG(F9)/(1024*1024) as '下行流量(G)' " +
-                             "from tempdata where " + strTyp + " <> '' group by cellname";
+                             "(sum(小区用户面上行字节数)+sum(小区用户面下行字节数))/sum(E_RAB建立成功数) as 'E-RAB(KB)', " +
+                             "AVG(有效RRC连接平均数) as '平均RRC有效用户数', " +
+                             "SUM(上行占用的PRB个数)/SUM(RRU_PrbUl_TotalNum) as '上行PUSCH PRB利用率', " +
+                             "AVG(小区用户面上行字节数)/(1024*1024) as '上行流量(G)', " +
+                             "SUM(下行占用的PRB个数)/SUM(RRU_PrbDl_TotalNum) as '下行PDSCH PRB利用率', " +
+                             "SUM(CCE占用量)/SUM(CCE可使用量) as '下行PDCCH CCE利用率', " +
+                             "AVG(小区用户面下行字节数)/(1024*1024) as '下行流量(G)' " +
+                             "from " + TableName + " where " + strTyp + " <> '' group by cellname having(sum(E_RAB建立成功数)> 0)";
                 SqlDataReader dr = oComm.ExecuteReader();
                 DataTable dt = CrtAvgTable();
                 while (dr.Read())
                 {
                     DataRow row = dt.NewRow();
                     row[0] = Convert.ToString(dr[0]);
-                    row[1] = Convert.ToDouble(dr["E-RAB(KB)"]);
-                    row[2] = Convert.ToDouble(dr["平均RRC有效用户数"]);
-                    row[3] = Convert.ToDouble(dr["上行PUSCH PRB利用率"]);
-                    row[4] = Convert.ToDouble(dr["上行流量(G)"]);
-                    row[5] = Convert.ToDouble(dr["下行PDSCH PRB利用率"]);
-                    row[6] = Convert.ToDouble(dr["下行PDCCH CCE利用率"]);
-                    row[7] = Convert.ToDouble(dr["下行流量(G)"]);
-                    string[] strsStandard = CheckStandard(dr);
-                    row[8] = strsStandard[0];
-                    row[9] = strsStandard[1];
-                    dt.Rows.Add(row);
-                }
-                dr.Close();
-                this.oConn.Close();
-                string strTableName = "Avgdata_" + strStdTyp + "_" + strTyp;
-                //创建平均表
-                CreateAvgTable(strTableName);
-                //写入平均表数据
-                MainForm.strCurTip = "正在写入平均表数据...";
-                ((TipReFresher)trf).CurTip();
-                BulkToDB(dt, strTableName);
-                MainForm.nProValue = 85;
-                ((TipReFresher)trf).CurTip();
-                //添加主键
-                AddPrimary(strTableName, "PK_" + strTableName, "cellname");
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        /// <summary>
-        /// 基于标准计算每天的扩容条件
-        /// </summary>
-        /// <param name="strTyp"></param>
-        /// <param name="strStdTyp"></param>
-        public void CrtDataDate(string strTyp, string strStdTyp,object trf)
-        {
-            try
-            {
-                this.oConn.Open();
-                this.oConn.ChangeDatabase("Predilatation");
-                SqlCommand oComm = this.oConn.CreateCommand();
-                oComm.CommandText = "select cellname,time, " +
-                             "Derived5 as 'E-RAB(KB)', " +
-                             "F4 as '平均RRC有效用户数', " +
-                             "Derived2 as '上行PUSCH PRB利用率', " +
-                             "F8/(1024*1024) as '上行流量(G)', " +
-                             "Derived3 as '下行PDSCH PRB利用率', " +
-                             "Derived4 as '下行PDCCH CCE利用率', " +
-                             "F9/(1024*1024) as '下行流量(G)' " +
-                             "from tempdata where " + strTyp + " <> ''";
-                SqlDataReader dr = oComm.ExecuteReader();
-                DataTable dt = CrtDateTable();
-                while (dr.Read())
-                {
-                    DataRow row = dt.NewRow();
-                    row[0] = Convert.ToString(dr[0]);
-                    row[1] = Convert.ToString(dr[1]);
+                    row[1] = CheckCellType(Convert.ToDouble(dr["E-RAB(KB)"]));
                     row[2] = Convert.ToDouble(dr["E-RAB(KB)"]);
                     row[3] = Convert.ToDouble(dr["平均RRC有效用户数"]);
                     row[4] = Convert.ToDouble(dr["上行PUSCH PRB利用率"]);
@@ -123,7 +64,68 @@ namespace Predilatation
                 }
                 dr.Close();
                 this.oConn.Close();
-                string strTableName = "Date_" + strStdTyp + "_" + strTyp;
+                string strTableName = AorB + "_Avgdata_" + strStdTyp + "_" + strTyp;
+                //创建平均表
+                CreateAvgTable(strTableName);
+                //写入平均表数据
+                MainForm.strCurTip = "正在写入平均表数据...";
+                ((TipReFresher)trf).CurTip();
+                BulkToDB(dt, strTableName);
+                MainForm.nProValue = 85;
+                ((TipReFresher)trf).CurTip();
+                //添加主键
+                AddPrimary(strTableName, "PK_" + strTableName, "cellname");
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 基于标准计算每天的扩容条件
+        /// </summary>
+        /// <param name="strTyp"></param>
+        /// <param name="strStdTyp"></param>
+        public void CrtDataDate(string strTyp, string strStdTyp,object trf,string TableName,string AorB)
+        {
+            try
+            {
+                this.oConn.Open();
+                this.oConn.ChangeDatabase("Predilatation");
+                SqlCommand oComm = this.oConn.CreateCommand();
+                oComm.CommandText = "select cellname,time, " +
+                             "平均E_RAB流量 as 'E-RAB(KB)', " +
+                             "有效RRC连接平均数 as '平均RRC有效用户数', " +
+                             "上行PUSCH_PRB利用率 as '上行PUSCH PRB利用率', " +
+                             "小区用户面上行字节数/(1024*1024) as '上行流量(G)', " +
+                             "下行PDSCH_PRB利用率 as '下行PDSCH PRB利用率', " +
+                             "下行PDCCH_PRB利用率 as '下行PDCCH CCE利用率', " +
+                             "小区用户面下行字节数/(1024*1024) as '下行流量(G)' " +
+                             "from " + TableName + " where " + strTyp + " <> ''";
+                SqlDataReader dr = oComm.ExecuteReader();
+                DataTable dt = CrtDateTable();
+                while (dr.Read())
+                {
+                    DataRow row = dt.NewRow();
+                    row[0] = Convert.ToString(dr[0]);
+                    row[1] = Convert.ToString(dr[1]);
+                    row[2] = CheckCellType(Convert.ToDouble(dr["E-RAB(KB)"]));
+                    row[3] = Convert.ToDouble(dr["E-RAB(KB)"]);
+                    row[4] = Convert.ToDouble(dr["平均RRC有效用户数"]);
+                    row[5] = Convert.ToDouble(dr["上行PUSCH PRB利用率"]);
+                    row[6] = Convert.ToDouble(dr["上行流量(G)"]);
+                    row[7] = Convert.ToDouble(dr["下行PDSCH PRB利用率"]);
+                    row[8] = Convert.ToDouble(dr["下行PDCCH CCE利用率"]);
+                    row[9] = Convert.ToDouble(dr["下行流量(G)"]);
+                    string[] strsStandard = CheckStandard(dr);
+                    row[10] = strsStandard[0];
+                    row[11] = strsStandard[1];
+                    dt.Rows.Add(row);
+                }
+                dr.Close();
+                this.oConn.Close();
+                string strTableName = AorB + "_Date_" + strStdTyp + "_" + strTyp;
                 //创建每天表
                 CreateDateTable(strTableName);
                 //写入每天表数据
@@ -138,7 +140,7 @@ namespace Predilatation
             }
             catch (Exception e)
             {
-                throw e;
+                throw;
             }
         }
 
@@ -156,6 +158,7 @@ namespace Predilatation
                 oComm.CommandText = "if  exists(select * from sysobjects where  type = 'U' and name = '" + strTableName + "') drop table " + strTableName +
                                     " create table " + strTableName +
                                     " (cellname varchar(255) not null," +
+                                    "celltype varchar(20)," +
                                     "ERAB numeric(18,4)," +
                                     "平均RRC有效用户数 numeric(18,4)," +
                                     "上行PUSCH_PRB利用率 numeric(18,4)," +
@@ -168,9 +171,9 @@ namespace Predilatation
                 oComm.ExecuteNonQuery();
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
             finally
             {
@@ -194,6 +197,7 @@ namespace Predilatation
                                     " create table " + strTableName +
                                     " (cellname varchar(255) not null," +
                                     "time varchar(255) not null," +
+                                    "celltype varchar(20) not null," +
                                     "ERAB numeric(18,4)," +
                                     "平均RRC有效用户数 numeric(18,4)," +
                                     "上行PUSCH_PRB利用率 numeric(18,4)," +
@@ -208,7 +212,7 @@ namespace Predilatation
             }
             catch (Exception e)
             {
-                throw e;
+                throw ;
             }
             finally
             {
@@ -297,7 +301,10 @@ namespace Predilatation
 
                 //有或的替换为逻辑运算符
                 if (strTemp.Contains("或"))
+                {
                     strTemp = strTemp.Replace("或", " or ");
+                    strTemp = "(" + strTemp + ")";
+                }
                 
                 //替换指标值
                 if(strTemp.Contains("平均RRC有效用户数"))
@@ -374,6 +381,7 @@ namespace Predilatation
             DataTable dt = new DataTable();
             dt.Columns.AddRange(new DataColumn[]{  
             new DataColumn("cellname",typeof(string)), 
+            new DataColumn("celltype",typeof(string)), 
             new DataColumn("ERAB",typeof(double)),
             new DataColumn("平均RRC有效用户数",typeof(double)),
             new DataColumn("上行PUSCH_PRB利用率",typeof(double)),
@@ -396,6 +404,7 @@ namespace Predilatation
             dt.Columns.AddRange(new DataColumn[]{  
             new DataColumn("cellname",typeof(string)),  
             new DataColumn("time",typeof(string)),  
+            new DataColumn("celltype",typeof(string)), 
             new DataColumn("ERAB",typeof(double)),
             new DataColumn("平均RRC有效用户数",typeof(double)),
             new DataColumn("上行PUSCH_PRB利用率",typeof(double)),

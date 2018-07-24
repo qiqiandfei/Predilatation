@@ -46,20 +46,27 @@ namespace Predilatation
         /// </summary>
         private void Init()
         {
-            radCrtDB.Checked = true;
+            radCrtDB.Checked = false;
+            radAlreadyDB.Checked = true;
             radFlow.Checked = true;
             progressBar.Visible = false;
+            this.btnSelFiles_before.Enabled = false;
+            this.btnSelFiles_after.Enabled = false;
         }
 
         //分析文件夹
-        private static string strSelPath = "";
+        private static string strSelPath_before = "";
+        private static string strSelPath_after = "";
         //需要分析的文件
-        private static string[] files = null;
+        private static string[] files_before = null;
+        private static string[] files_after = null;
 
         //当前状态
         public static string strCurTip = "";
         public static int nProValue = 0;
         private delegate void SetTipHandler();
+
+        SqlServerHelper sqlserver = null;
 
 
         /// <summary>
@@ -67,12 +74,26 @@ namespace Predilatation
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Selfiles_Click(object sender, EventArgs e)
+        private void btnSelFiles_before_Click(object sender, EventArgs e)
         {
             if (this.folderBrowser.ShowDialog() == DialogResult.OK)
             {
-                this.txtPath.Text = this.folderBrowser.SelectedPath;
-                strSelPath = this.txtPath.Text;
+                this.txtPath_before.Text = this.folderBrowser.SelectedPath;
+                strSelPath_before = this.txtPath_before.Text;
+            }
+        }
+
+        /// <summary>
+        /// 选择分析文件夹
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnSelFiles_after_Click(object sender, EventArgs e)
+        {
+            if (this.folderBrowser.ShowDialog() == DialogResult.OK)
+            {
+                this.txtPath_after.Text = this.folderBrowser.SelectedPath;
+                strSelPath_after = this.txtPath_after.Text;
             }
         }
 
@@ -83,6 +104,7 @@ namespace Predilatation
         /// <param name="e"></param>
         private void Start_Click(object sender, EventArgs e)
         {
+            sqlserver = new SqlServerHelper();
             string strErrMsg = Check();
             if (string.IsNullOrEmpty(strErrMsg))
             {
@@ -112,84 +134,222 @@ namespace Predilatation
         {
             DateTime TimeStart = DateTime.Now;
             nProValue = 0;
-            SqlServerHelper sqlserver = new SqlServerHelper();
+            
             if (this.radCrtDB.Checked)
             {
-                files = Directory.GetFiles(this.txtPath.Text);
-                //建库，建表
-                strCurTip = "正在创建数据库...";
-                nProValue = 100;
-                ((TipReFresher)trf).CurTip();
-                sqlserver.CreatDataBase();
-                sqlserver.CreateTable();
-                //添加主键
-                sqlserver.AddPrimary("Tempdata","PK_Tempdata","cellname,time");
-                nProValue = 100;
-                ((TipReFresher)trf).CurTip();
-                //文件生成表格并写入数据库
-                nProValue = 0;
-                strCurTip = "正在生成数据表格...";
-                ((TipReFresher)trf).CurTip();
-                sqlserver.GetTablefromFile(files, trf);
-                
-                //清洗无效数据
-                nProValue = 0;
-                strCurTip = "正在清洗无效数据...";
-                ((TipReFresher)trf).CurTip();
-                sqlserver.DataClean(files,trf);
+                if (!string.IsNullOrEmpty(this.txtPath_before.Text) && !string.IsNullOrEmpty(this.txtPath_after.Text))
+                {
+                    //创建前N天数据
+                    DataCreate_Before(trf);
+                    //创建后N一天数据
+                    DataCreate_After(trf);
+                    //同步前后数据
+                    nProValue = 50;
+                    strCurTip = "正在进行数据同步...";
+                    ((TipReFresher)trf).CurTip();
+                    sqlserver.DataSync();
+                    nProValue = 100;
+                    ((TipReFresher)trf).CurTip();
+                }
+                else if (!string.IsNullOrEmpty(this.txtPath_before.Text) && string.IsNullOrEmpty(this.txtPath_after.Text))
+                {
+                    //创建前N天数据
+                    DataCreate_Before(trf);
+                }
+                else if (string.IsNullOrEmpty(this.txtPath_before.Text) && !string.IsNullOrEmpty(this.txtPath_after.Text))
+                {
+                    //创建后N天数据
+                    DataCreate_After(trf);
+                }
+                RunByArea(trf);
             }
+            else
+            {
+                RunByArea(trf);
+            }
+            strCurTip = "分析结束！";
+            ((TipReFresher)trf).CurTip();
 
+            double elapsedTimeInSeconds = DateTime.Now.Subtract(TimeStart).TotalSeconds;
+            MessageBox.Show("总共耗时：" + elapsedTimeInSeconds.ToString());
+
+            
+            
+        }
+
+        /// <summary>
+        /// 生成前N天数据业务
+        /// </summary>
+        /// <param name="trf"></param>
+        private void DataCreate_Before(object trf)
+        {
+            //建库，建表
+            strCurTip = "正在创建数据库...";
+            nProValue = 100;
+            ((TipReFresher)trf).CurTip();
+            sqlserver.CreatDataBase();
+            sqlserver.CreateTable("Tempdata_Before");
+            //添加主键
+            sqlserver.AddPrimary("Tempdata_Before", "PK_Tempdata_Before", "cellname,time");
+            nProValue = 100;
+            ((TipReFresher)trf).CurTip();
+            //文件生成表格并写入数据库
+            nProValue = 0;
+            strCurTip = "正在生成前N天数据表格...";
+            ((TipReFresher)trf).CurTip();
+            sqlserver.GetTablefromFile(files_before, trf,"Tempdata_Before");
+
+            //清洗无效数据
+            nProValue = 0;
+            strCurTip = "正在清洗前N天无效数据...";
+            ((TipReFresher)trf).CurTip();
+            sqlserver.DataClean(files_before, trf,"Tempdata_Before");
+
+            
+        }
+
+        /// <summary>
+        /// 生成后N天数据业务
+        /// </summary>
+        /// <param name="trf"></param>
+        private void DataCreate_After(object trf)
+        {
+            sqlserver.CreateTable("Tempdata_After");
+            //添加主键
+            sqlserver.AddPrimary("Tempdata_After", "PK_Tempdata_After", "cellname,time");
+            nProValue = 100;
+            ((TipReFresher)trf).CurTip();
+            //文件生成表格并写入数据库
+            nProValue = 0;
+            strCurTip = "正在生成后N天数据表格...";
+            ((TipReFresher)trf).CurTip();
+            sqlserver.GetTablefromFile(files_after, trf, "Tempdata_After");
+
+            //清洗无效数据
+            nProValue = 0;
+            strCurTip = "正在清洗后N天无效数据...";
+            ((TipReFresher)trf).CurTip();
+            sqlserver.DataClean(files_after, trf, "Tempdata_After");
+           
+        }
+
+       /// <summary>
+       /// 前N天业务
+       /// </summary>
+       /// <param name="trf"></param>
+        private void BS_BeforeN(object trf)
+        {
             if (this.radFlow.Checked)
             {
                 strType = "FlowBusy";
-
                 nProValue = 50;
-                
-                strCurTip = "正在计算流量自忙时...";
+                strCurTip = "正在计算前N天流量自忙时...";
                 ((TipReFresher)trf).CurTip();
-                sqlserver.CalculateBusy_Flow();
+                sqlserver.CalculateBusy_Flow("Tempdata_Before", "FlowBusy_Before");
                 nProValue = 100;
                 ((TipReFresher)trf).CurTip();
             }
             if (this.radUtilizaerate.Checked)
             {
                 strType = "Utilizaerate";
-
                 nProValue = 50;
-                strCurTip = "正在计算利用率自忙时...";
+                strCurTip = "正在计算前N天利用率自忙时...";
                 ((TipReFresher)trf).CurTip();
-                sqlserver.CalculateBusy_Utilizaerate();
+                sqlserver.CalculateBusy_Utilizaerate("Tempdata_Before", "Utilizaerate_Before");
                 nProValue = 100;
                 ((TipReFresher)trf).CurTip();
 
             }
 
+            //计算前N天扩容标准
             if (this.radGroupSHY.Checked || this.radGroupFHY.Checked || this.radDTMobile.Checked)
             {
                 Calculate Cal = new Calculate(Param);
                 nProValue = 50;
-                strCurTip = "正在根据标准计算平均扩容条件...";
+                strCurTip = "正在根据标准计算前N天平均扩容条件...";
                 ((TipReFresher)trf).CurTip();
 
-                Cal.CrtAvgData(strType, strStdTyp, trf);
-
+                Cal.CrtAvgData(strType, strStdTyp, trf, "Tempdata_Before", "Before");
 
                 nProValue = 50;
-                strCurTip = "正在根据标准计算每天扩容条件...";
+                strCurTip = "正在根据标准计算前N天每天扩容条件...";
                 ((TipReFresher)trf).CurTip();
-                Cal.CrtDataDate(strType, strStdTyp, trf);
+                Cal.CrtDataDate(strType, strStdTyp, trf, "Tempdata_Before", "Before");
                 nProValue = 100;
                 ((TipReFresher)trf).CurTip();
             }
 
-            double elapsedTimeInSeconds = DateTime.Now.Subtract(TimeStart).TotalSeconds;
-            MessageBox.Show("总共耗时：" + elapsedTimeInSeconds.ToString());
-
-            strCurTip = "分析结束！";
-            ((TipReFresher)trf).CurTip();
-            
         }
 
+        /// <summary>
+        /// 后N天业务
+        /// </summary>
+        /// <param name="trf"></param>
+        private void BS_AfterN(object trf)
+        {
+            if (this.radFlow.Checked)
+            {
+                strType = "FlowBusy";
+                nProValue = 50;
+                strCurTip = "正在计算后N天流量自忙时...";
+                ((TipReFresher)trf).CurTip();
+                sqlserver.CalculateBusy_Flow("Tempdata_After", "FlowBusy_After");
+                nProValue = 100;
+                ((TipReFresher)trf).CurTip();
+            }
+            if (this.radUtilizaerate.Checked)
+            {
+                strType = "Utilizaerate";
+                nProValue = 50;
+                strCurTip = "正在计算后N天利用率自忙时...";
+                ((TipReFresher)trf).CurTip();
+                sqlserver.CalculateBusy_Utilizaerate("Tempdata_After", "Utilizaerate_After");
+                nProValue = 100;
+                ((TipReFresher)trf).CurTip();
+
+            }
+
+            //计算后N天扩容标准
+            if (this.radGroupSHY.Checked || this.radGroupFHY.Checked || this.radDTMobile.Checked)
+            {
+                Calculate Cal = new Calculate(Param);
+                nProValue = 50;
+                strCurTip = "正在根据标准计算后N天平均扩容条件...";
+                ((TipReFresher)trf).CurTip();
+
+                Cal.CrtAvgData(strType, strStdTyp, trf, "Tempdata_After", "After");
+
+
+                nProValue = 50;
+                strCurTip = "正在根据标准计算后N天每天扩容条件...";
+                ((TipReFresher)trf).CurTip();
+                Cal.CrtDataDate(strType, strStdTyp, trf, "Tempdata_After", "After");
+                nProValue = 100;
+                ((TipReFresher)trf).CurTip();
+            }
+        }
+
+
+        /// <summary>
+        /// 根据范围计算
+        /// </summary>
+        /// <param name="trf"></param>
+        private void RunByArea(object trf)
+        {
+            if (this.radBeforeN.Checked)
+            {
+                BS_BeforeN(trf);
+            }
+            if (this.radAfterN.Checked)
+            {
+                BS_AfterN(trf);
+            }
+            if (this.radAll.Checked)
+            {
+                BS_BeforeN(trf);
+                BS_AfterN(trf);
+            }
+        }
 
 
         /// <summary>
@@ -205,32 +365,125 @@ namespace Predilatation
             {
                 if (this.radCrtDB.Checked)
                 {
-                    if (string.IsNullOrEmpty(this.txtPath.Text))
+                    if (string.IsNullOrEmpty(this.txtPath_before.Text) && string.IsNullOrEmpty(this.txtPath_after.Text))
                     {
-                        strErrMsg = "请选择路径！";
+                        strErrMsg = "请选择文件路径！";
                         return strErrMsg;
                     }
 
-                    string[] files = Directory.GetFiles(this.txtPath.Text);
-                    if (files.Length == 0)
+                    if (!string.IsNullOrEmpty(this.txtPath_before.Text))
                     {
-                        strErrMsg = "所选文件夹无效！";
-                        return strErrMsg;
-                    }
-
-                    bool bflg = false;
-                    foreach (var file in files)
-                    {
-                        if (Path.GetExtension(file).ToLower() == ".csv")
+                        files_before = Directory.GetFiles(this.txtPath_before.Text);
+                        if (files_before.Length == 0)
                         {
-                            bflg = true;
-                            break;
+                            strErrMsg = "前N天所选文件夹无效！";
+                            return strErrMsg;
+                        }
+
+                        bool bflg = false;
+                        foreach (var file in files_before)
+                        {
+                            if (Path.GetExtension(file).ToLower() != ".csv")
+                            {
+                                bflg = true;
+                                break;
+                            }
+                        }
+
+                        if (bflg)
+                        {
+                            strErrMsg = "前N天所选文件夹中不存在有效文件！";
+                            return strErrMsg;
                         }
                     }
 
-                    if (!bflg)
+                    if (!string.IsNullOrEmpty(this.txtPath_after.Text))
                     {
-                        strErrMsg = "所选文件夹中不存在有效文件！";
+                        files_after = Directory.GetFiles(this.txtPath_after.Text);
+                        if (files_after.Length == 0)
+                        {
+                            strErrMsg = "后N天所选文件夹无效！";
+                            return strErrMsg;
+                        }
+
+                        bool bflg = false;
+                        foreach (var file in files_after)
+                        {
+                            if (Path.GetExtension(file).ToLower() != ".csv")
+                            {
+                                bflg = true;
+                                break;
+                            }
+                        }
+
+                        if (bflg)
+                        {
+                            strErrMsg = "后N天所选文件夹中不存在有效文件！";
+                            return strErrMsg;
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(this.txtPath_before.Text) &&
+                        !string.IsNullOrEmpty(this.txtPath_after.Text))
+                    {
+                        if (files_after.Length != files_before.Length)
+                        {
+                            strErrMsg = "前N与后N天数文件数量不一致！";
+                        }
+                    }
+                    else if(string.IsNullOrEmpty(this.txtPath_before.Text) &&
+                            !string.IsNullOrEmpty(this.txtPath_after.Text))
+                    {
+                        if(this.radBeforeN.Checked)
+                        {
+                            strErrMsg = "已选择的文件夹与计算范围不一致！";
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(this.txtPath_before.Text) &&
+                           string.IsNullOrEmpty(this.txtPath_after.Text))
+                    {
+                        if (this.radAfterN.Checked)
+                        {
+                            strErrMsg = "已选择的文件夹与计算范围不一致！";
+                        }
+                    }
+
+                    if (!radBeforeN.Checked && !radAfterN.Checked && !radAll.Checked)
+                    {
+                        strErrMsg = "请选择计算范围！";
+                    }
+                }
+                
+                if (this.radAlreadyDB.Checked)
+                {
+                    strErrMsg = sqlserver.CheckDataBase();
+                    //检查数据库是否存在
+                    if (string.IsNullOrEmpty(strErrMsg))
+                    {
+                        if (!radBeforeN.Checked && !radAfterN.Checked && !radAll.Checked)
+                        {
+                            strErrMsg = "请选择计算范围！";
+                        }
+                        //检查数据表是否存在
+                        if (this.radBeforeN.Checked)
+                        {
+                            strErrMsg = sqlserver.CheckTable("Tempdata_Before");
+                        }
+                        if (this.radAfterN.Checked)
+                        {
+                            strErrMsg = sqlserver.CheckTable("Tempdata_After");
+                        }
+                        if (this.radAll.Checked)
+                        {
+                            strErrMsg = sqlserver.CheckTable("Tempdata_Before");
+                            if (string.IsNullOrEmpty(strErrMsg))
+                            {
+                                strErrMsg = sqlserver.CheckTable("Tempdata_After");
+                            }
+                        }
+                    }
+                    else
+                    {
                         return strErrMsg;
                     }
                 }
@@ -675,13 +928,17 @@ namespace Predilatation
         {
             if (this.radCrtDB.Checked)
             {
-                this.btnSelfiles.Enabled = true;
+                this.btnSelFiles_before.Enabled = true;
+                this.btnSelFiles_after.Enabled = true;
             }
             else
             {
-                this.btnSelfiles.Enabled = false;
+                this.btnSelFiles_before.Enabled = false;
+                this.btnSelFiles_after.Enabled = false;
             }
         }
+
+        
         //************************************根据模板初始化********************************************//
         
     }

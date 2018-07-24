@@ -28,10 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.label1 = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
-            this.txtPath = new System.Windows.Forms.TextBox();
-            this.btnSelfiles = new System.Windows.Forms.Button();
+            this.txtPath_before = new System.Windows.Forms.TextBox();
+            this.btnSelFiles_before = new System.Windows.Forms.Button();
             this.Start = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.radFlow = new System.Windows.Forms.RadioButton();
@@ -75,6 +76,14 @@
             this.radGroupSHY = new System.Windows.Forms.RadioButton();
             this.radGroupFHY = new System.Windows.Forms.RadioButton();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.txtPath_after = new System.Windows.Forms.TextBox();
+            this.btnSelFiles_after = new System.Windows.Forms.Button();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.radBeforeN = new System.Windows.Forms.RadioButton();
+            this.radAfterN = new System.Windows.Forms.RadioButton();
+            this.radAll = new System.Windows.Forms.RadioButton();
             this.radPanel2.SuspendLayout();
             this.radPanel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -83,39 +92,42 @@
             this.groupBox2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 80);
+            this.label1.Location = new System.Drawing.Point(9, 80);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(97, 15);
+            this.label1.Size = new System.Drawing.Size(135, 15);
             this.label1.TabIndex = 0;
-            this.label1.Text = "指标文件夹：";
+            this.label1.Text = "前N天指标文件夹：";
             // 
-            // txtPath
+            // txtPath_before
             // 
-            this.txtPath.Enabled = false;
-            this.txtPath.Location = new System.Drawing.Point(116, 75);
-            this.txtPath.Name = "txtPath";
-            this.txtPath.ReadOnly = true;
-            this.txtPath.Size = new System.Drawing.Size(946, 25);
-            this.txtPath.TabIndex = 1;
+            this.txtPath_before.Enabled = false;
+            this.txtPath_before.Location = new System.Drawing.Point(145, 75);
+            this.txtPath_before.Name = "txtPath_before";
+            this.txtPath_before.ReadOnly = true;
+            this.txtPath_before.Size = new System.Drawing.Size(920, 25);
+            this.txtPath_before.TabIndex = 1;
             // 
-            // btnSelfiles
+            // btnSelFiles_before
             // 
-            this.btnSelfiles.Location = new System.Drawing.Point(1073, 72);
-            this.btnSelfiles.Name = "btnSelfiles";
-            this.btnSelfiles.Size = new System.Drawing.Size(75, 30);
-            this.btnSelfiles.TabIndex = 2;
-            this.btnSelfiles.Text = "选择";
-            this.btnSelfiles.UseVisualStyleBackColor = true;
-            this.btnSelfiles.Click += new System.EventHandler(this.Selfiles_Click);
+            this.btnSelFiles_before.BackColor = System.Drawing.Color.White;
+            this.btnSelFiles_before.ForeColor = System.Drawing.Color.Black;
+            this.btnSelFiles_before.Location = new System.Drawing.Point(1073, 72);
+            this.btnSelFiles_before.Name = "btnSelFiles_before";
+            this.btnSelFiles_before.Size = new System.Drawing.Size(75, 30);
+            this.btnSelFiles_before.TabIndex = 2;
+            this.btnSelFiles_before.Text = "选择";
+            this.btnSelFiles_before.UseVisualStyleBackColor = false;
+            this.btnSelFiles_before.Click += new System.EventHandler(this.btnSelFiles_before_Click);
             // 
             // Start
             // 
-            this.Start.Location = new System.Drawing.Point(554, 669);
+            this.Start.Location = new System.Drawing.Point(546, 699);
             this.Start.Name = "Start";
             this.Start.Size = new System.Drawing.Size(75, 30);
             this.Start.TabIndex = 3;
@@ -126,7 +138,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(567, 34);
+            this.label2.Location = new System.Drawing.Point(784, 34);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(97, 15);
             this.label2.TabIndex = 5;
@@ -135,7 +147,7 @@
             // radFlow
             // 
             this.radFlow.AutoSize = true;
-            this.radFlow.Location = new System.Drawing.Point(10, 7);
+            this.radFlow.Location = new System.Drawing.Point(16, 7);
             this.radFlow.Name = "radFlow";
             this.radFlow.Size = new System.Drawing.Size(58, 19);
             this.radFlow.TabIndex = 6;
@@ -146,7 +158,7 @@
             // radUtilizaerate
             // 
             this.radUtilizaerate.AutoSize = true;
-            this.radUtilizaerate.Location = new System.Drawing.Point(170, 7);
+            this.radUtilizaerate.Location = new System.Drawing.Point(91, 7);
             this.radUtilizaerate.Name = "radUtilizaerate";
             this.radUtilizaerate.Size = new System.Drawing.Size(73, 19);
             this.radUtilizaerate.TabIndex = 6;
@@ -156,7 +168,9 @@
             // 
             // labTip
             // 
-            this.labTip.Location = new System.Drawing.Point(12, 591);
+            this.labTip.BackColor = System.Drawing.Color.Transparent;
+            this.labTip.ForeColor = System.Drawing.Color.White;
+            this.labTip.Location = new System.Drawing.Point(12, 626);
             this.labTip.Name = "labTip";
             this.labTip.Size = new System.Drawing.Size(1158, 23);
             this.labTip.TabIndex = 4;
@@ -164,7 +178,7 @@
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(12, 629);
+            this.progressBar.Location = new System.Drawing.Point(12, 664);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(1158, 23);
             this.progressBar.TabIndex = 7;
@@ -193,7 +207,7 @@
             // radAlreadyDB
             // 
             this.radAlreadyDB.AutoSize = true;
-            this.radAlreadyDB.Location = new System.Drawing.Point(170, 7);
+            this.radAlreadyDB.Location = new System.Drawing.Point(145, 7);
             this.radAlreadyDB.Name = "radAlreadyDB";
             this.radAlreadyDB.Size = new System.Drawing.Size(103, 19);
             this.radAlreadyDB.TabIndex = 9;
@@ -205,26 +219,28 @@
             // 
             this.radPanel2.Controls.Add(this.radFlow);
             this.radPanel2.Controls.Add(this.radUtilizaerate);
-            this.radPanel2.Location = new System.Drawing.Point(670, 25);
+            this.radPanel2.Location = new System.Drawing.Point(887, 25);
             this.radPanel2.Name = "radPanel2";
-            this.radPanel2.Size = new System.Drawing.Size(335, 33);
+            this.radPanel2.Size = new System.Drawing.Size(172, 33);
             this.radPanel2.TabIndex = 10;
             // 
             // radPanel1
             // 
             this.radPanel1.Controls.Add(this.radCrtDB);
             this.radPanel1.Controls.Add(this.radAlreadyDB);
-            this.radPanel1.Location = new System.Drawing.Point(116, 25);
+            this.radPanel1.Location = new System.Drawing.Point(145, 25);
             this.radPanel1.Name = "radPanel1";
-            this.radPanel1.Size = new System.Drawing.Size(335, 33);
+            this.radPanel1.Size = new System.Drawing.Size(255, 33);
             this.radPanel1.TabIndex = 10;
             // 
             // groupBox1
             // 
+            this.groupBox1.BackColor = System.Drawing.Color.Transparent;
             this.groupBox1.Controls.Add(this.groupBox3);
             this.groupBox1.Controls.Add(this.groupBox4);
             this.groupBox1.Controls.Add(this.groupBox2);
             this.groupBox1.Controls.Add(this.panel1);
+            this.groupBox1.ForeColor = System.Drawing.Color.White;
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(1158, 442);
@@ -241,6 +257,7 @@
             this.groupBox3.Controls.Add(this.txtERAB_B);
             this.groupBox3.Controls.Add(this.cmbERAB_B);
             this.groupBox3.Controls.Add(this.label4);
+            this.groupBox3.ForeColor = System.Drawing.Color.White;
             this.groupBox3.Location = new System.Drawing.Point(6, 61);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(1146, 120);
@@ -253,7 +270,7 @@
             this.lstbox_BD.FormattingEnabled = true;
             this.lstbox_BD.HorizontalScrollbar = true;
             this.lstbox_BD.ItemHeight = 15;
-            this.lstbox_BD.Location = new System.Drawing.Point(866, 13);
+            this.lstbox_BD.Location = new System.Drawing.Point(870, 17);
             this.lstbox_BD.Name = "lstbox_BD";
             this.lstbox_BD.Size = new System.Drawing.Size(270, 94);
             this.lstbox_BD.TabIndex = 4;
@@ -265,7 +282,7 @@
             this.lstbox_BU.FormattingEnabled = true;
             this.lstbox_BU.HorizontalScrollbar = true;
             this.lstbox_BU.ItemHeight = 15;
-            this.lstbox_BU.Location = new System.Drawing.Point(467, 13);
+            this.lstbox_BU.Location = new System.Drawing.Point(467, 17);
             this.lstbox_BU.Name = "lstbox_BU";
             this.lstbox_BU.Size = new System.Drawing.Size(270, 94);
             this.lstbox_BU.TabIndex = 4;
@@ -275,7 +292,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(751, 53);
+            this.label10.Location = new System.Drawing.Point(751, 57);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(113, 15);
             this.label10.TabIndex = 3;
@@ -284,7 +301,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(348, 53);
+            this.label7.Location = new System.Drawing.Point(348, 57);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(113, 15);
             this.label7.TabIndex = 3;
@@ -292,7 +309,7 @@
             // 
             // txtERAB_B
             // 
-            this.txtERAB_B.Location = new System.Drawing.Point(230, 48);
+            this.txtERAB_B.Location = new System.Drawing.Point(230, 52);
             this.txtERAB_B.Name = "txtERAB_B";
             this.txtERAB_B.Size = new System.Drawing.Size(50, 25);
             this.txtERAB_B.TabIndex = 2;
@@ -302,11 +319,8 @@
             this.cmbERAB_B.FormattingEnabled = true;
             this.cmbERAB_B.Items.AddRange(new object[] {
             ">=",
-            ">",
-            "<",
-            "<=",
-            "="});
-            this.cmbERAB_B.Location = new System.Drawing.Point(174, 48);
+            ">"});
+            this.cmbERAB_B.Location = new System.Drawing.Point(174, 53);
             this.cmbERAB_B.Name = "cmbERAB_B";
             this.cmbERAB_B.Size = new System.Drawing.Size(50, 23);
             this.cmbERAB_B.TabIndex = 1;
@@ -314,7 +328,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(59, 52);
+            this.label4.Location = new System.Drawing.Point(59, 57);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(109, 15);
             this.label4.TabIndex = 0;
@@ -329,6 +343,7 @@
             this.groupBox4.Controls.Add(this.label6);
             this.groupBox4.Controls.Add(this.cmbERAB_S);
             this.groupBox4.Controls.Add(this.txtERAB_S);
+            this.groupBox4.ForeColor = System.Drawing.Color.White;
             this.groupBox4.Location = new System.Drawing.Point(6, 313);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(1146, 120);
@@ -341,7 +356,7 @@
             this.lstbox_SD.FormattingEnabled = true;
             this.lstbox_SD.HorizontalScrollbar = true;
             this.lstbox_SD.ItemHeight = 15;
-            this.lstbox_SD.Location = new System.Drawing.Point(870, 13);
+            this.lstbox_SD.Location = new System.Drawing.Point(870, 16);
             this.lstbox_SD.Name = "lstbox_SD";
             this.lstbox_SD.Size = new System.Drawing.Size(270, 94);
             this.lstbox_SD.TabIndex = 4;
@@ -351,7 +366,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(751, 53);
+            this.label12.Location = new System.Drawing.Point(751, 56);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(113, 15);
             this.label12.TabIndex = 3;
@@ -362,7 +377,7 @@
             this.lstbox_SU.FormattingEnabled = true;
             this.lstbox_SU.HorizontalScrollbar = true;
             this.lstbox_SU.ItemHeight = 15;
-            this.lstbox_SU.Location = new System.Drawing.Point(471, 13);
+            this.lstbox_SU.Location = new System.Drawing.Point(467, 16);
             this.lstbox_SU.Name = "lstbox_SU";
             this.lstbox_SU.Size = new System.Drawing.Size(270, 94);
             this.lstbox_SU.TabIndex = 4;
@@ -372,7 +387,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(348, 53);
+            this.label9.Location = new System.Drawing.Point(348, 56);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(113, 15);
             this.label9.TabIndex = 3;
@@ -381,7 +396,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(59, 51);
+            this.label6.Location = new System.Drawing.Point(59, 56);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(109, 15);
             this.label6.TabIndex = 0;
@@ -393,14 +408,14 @@
             this.cmbERAB_S.Items.AddRange(new object[] {
             "<",
             "<="});
-            this.cmbERAB_S.Location = new System.Drawing.Point(174, 48);
+            this.cmbERAB_S.Location = new System.Drawing.Point(174, 52);
             this.cmbERAB_S.Name = "cmbERAB_S";
             this.cmbERAB_S.Size = new System.Drawing.Size(50, 23);
             this.cmbERAB_S.TabIndex = 1;
             // 
             // txtERAB_S
             // 
-            this.txtERAB_S.Location = new System.Drawing.Point(230, 48);
+            this.txtERAB_S.Location = new System.Drawing.Point(230, 51);
             this.txtERAB_S.Name = "txtERAB_S";
             this.txtERAB_S.Size = new System.Drawing.Size(50, 25);
             this.txtERAB_S.TabIndex = 2;
@@ -416,6 +431,7 @@
             this.groupBox2.Controls.Add(this.txtERAB_ME);
             this.groupBox2.Controls.Add(this.cmbERAB_ME);
             this.groupBox2.Controls.Add(this.label5);
+            this.groupBox2.ForeColor = System.Drawing.Color.White;
             this.groupBox2.Location = new System.Drawing.Point(6, 187);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(1146, 120);
@@ -428,7 +444,7 @@
             this.lstbox_MD.FormattingEnabled = true;
             this.lstbox_MD.HorizontalScrollbar = true;
             this.lstbox_MD.ItemHeight = 15;
-            this.lstbox_MD.Location = new System.Drawing.Point(866, 13);
+            this.lstbox_MD.Location = new System.Drawing.Point(870, 17);
             this.lstbox_MD.Name = "lstbox_MD";
             this.lstbox_MD.Size = new System.Drawing.Size(270, 94);
             this.lstbox_MD.TabIndex = 4;
@@ -440,7 +456,7 @@
             this.lstbox_MU.FormattingEnabled = true;
             this.lstbox_MU.HorizontalScrollbar = true;
             this.lstbox_MU.ItemHeight = 15;
-            this.lstbox_MU.Location = new System.Drawing.Point(471, 13);
+            this.lstbox_MU.Location = new System.Drawing.Point(467, 17);
             this.lstbox_MU.Name = "lstbox_MU";
             this.lstbox_MU.Size = new System.Drawing.Size(270, 94);
             this.lstbox_MU.TabIndex = 4;
@@ -450,7 +466,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(751, 53);
+            this.label11.Location = new System.Drawing.Point(751, 57);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(113, 15);
             this.label11.TabIndex = 3;
@@ -459,7 +475,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(348, 53);
+            this.label8.Location = new System.Drawing.Point(348, 57);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(113, 15);
             this.label8.TabIndex = 3;
@@ -467,7 +483,7 @@
             // 
             // txtERAB_MS
             // 
-            this.txtERAB_MS.Location = new System.Drawing.Point(6, 48);
+            this.txtERAB_MS.Location = new System.Drawing.Point(6, 52);
             this.txtERAB_MS.Name = "txtERAB_MS";
             this.txtERAB_MS.Size = new System.Drawing.Size(50, 25);
             this.txtERAB_MS.TabIndex = 2;
@@ -478,14 +494,14 @@
             this.cmbERAB_MS.Items.AddRange(new object[] {
             "<=",
             "<"});
-            this.cmbERAB_MS.Location = new System.Drawing.Point(62, 49);
+            this.cmbERAB_MS.Location = new System.Drawing.Point(62, 53);
             this.cmbERAB_MS.Name = "cmbERAB_MS";
             this.cmbERAB_MS.Size = new System.Drawing.Size(50, 23);
             this.cmbERAB_MS.TabIndex = 1;
             // 
             // txtERAB_ME
             // 
-            this.txtERAB_ME.Location = new System.Drawing.Point(280, 48);
+            this.txtERAB_ME.Location = new System.Drawing.Point(280, 52);
             this.txtERAB_ME.Name = "txtERAB_ME";
             this.txtERAB_ME.Size = new System.Drawing.Size(50, 25);
             this.txtERAB_ME.TabIndex = 2;
@@ -496,7 +512,7 @@
             this.cmbERAB_ME.Items.AddRange(new object[] {
             "<",
             "<="});
-            this.cmbERAB_ME.Location = new System.Drawing.Point(224, 49);
+            this.cmbERAB_ME.Location = new System.Drawing.Point(224, 53);
             this.cmbERAB_ME.Name = "cmbERAB_ME";
             this.cmbERAB_ME.Size = new System.Drawing.Size(50, 23);
             this.cmbERAB_ME.TabIndex = 1;
@@ -504,7 +520,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(118, 53);
+            this.label5.Location = new System.Drawing.Point(118, 57);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(109, 15);
             this.label5.TabIndex = 0;
@@ -558,25 +574,115 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.BackColor = System.Drawing.Color.Transparent;
+            this.groupBox5.Controls.Add(this.panel2);
             this.groupBox5.Controls.Add(this.label3);
+            this.groupBox5.Controls.Add(this.label14);
             this.groupBox5.Controls.Add(this.label2);
             this.groupBox5.Controls.Add(this.radPanel1);
             this.groupBox5.Controls.Add(this.radPanel2);
-            this.groupBox5.Controls.Add(this.txtPath);
-            this.groupBox5.Controls.Add(this.btnSelfiles);
+            this.groupBox5.Controls.Add(this.txtPath_after);
+            this.groupBox5.Controls.Add(this.txtPath_before);
+            this.groupBox5.Controls.Add(this.btnSelFiles_after);
+            this.groupBox5.Controls.Add(this.btnSelFiles_before);
+            this.groupBox5.Controls.Add(this.label13);
             this.groupBox5.Controls.Add(this.label1);
+            this.groupBox5.ForeColor = System.Drawing.Color.White;
             this.groupBox5.Location = new System.Drawing.Point(12, 460);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(1158, 112);
+            this.groupBox5.Size = new System.Drawing.Size(1158, 154);
             this.groupBox5.TabIndex = 12;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "执行方式";
+            // 
+            // txtPath_after
+            // 
+            this.txtPath_after.Enabled = false;
+            this.txtPath_after.Location = new System.Drawing.Point(145, 117);
+            this.txtPath_after.Name = "txtPath_after";
+            this.txtPath_after.ReadOnly = true;
+            this.txtPath_after.Size = new System.Drawing.Size(920, 25);
+            this.txtPath_after.TabIndex = 1;
+            // 
+            // btnSelFiles_after
+            // 
+            this.btnSelFiles_after.BackColor = System.Drawing.Color.White;
+            this.btnSelFiles_after.ForeColor = System.Drawing.Color.Black;
+            this.btnSelFiles_after.Location = new System.Drawing.Point(1073, 114);
+            this.btnSelFiles_after.Name = "btnSelFiles_after";
+            this.btnSelFiles_after.Size = new System.Drawing.Size(75, 30);
+            this.btnSelFiles_after.TabIndex = 2;
+            this.btnSelFiles_after.Text = "选择";
+            this.btnSelFiles_after.UseVisualStyleBackColor = false;
+            this.btnSelFiles_after.Click += new System.EventHandler(this.btnSelFiles_after_Click);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(9, 122);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(135, 15);
+            this.label13.TabIndex = 0;
+            this.label13.Text = "后N天指标文件夹：";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(420, 34);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(82, 15);
+            this.label14.TabIndex = 5;
+            this.label14.Text = "计算范围：";
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.radAll);
+            this.panel2.Controls.Add(this.radAfterN);
+            this.panel2.Controls.Add(this.radBeforeN);
+            this.panel2.Location = new System.Drawing.Point(508, 25);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(235, 33);
+            this.panel2.TabIndex = 11;
+            // 
+            // radBeforeN
+            // 
+            this.radBeforeN.AutoSize = true;
+            this.radBeforeN.Location = new System.Drawing.Point(4, 7);
+            this.radBeforeN.Name = "radBeforeN";
+            this.radBeforeN.Size = new System.Drawing.Size(66, 19);
+            this.radBeforeN.TabIndex = 0;
+            this.radBeforeN.TabStop = true;
+            this.radBeforeN.Text = "前N天";
+            this.radBeforeN.UseVisualStyleBackColor = true;
+            // 
+            // radAfterN
+            // 
+            this.radAfterN.AutoSize = true;
+            this.radAfterN.Location = new System.Drawing.Point(84, 7);
+            this.radAfterN.Name = "radAfterN";
+            this.radAfterN.Size = new System.Drawing.Size(66, 19);
+            this.radAfterN.TabIndex = 0;
+            this.radAfterN.TabStop = true;
+            this.radAfterN.Text = "后N天";
+            this.radAfterN.UseVisualStyleBackColor = true;
+            // 
+            // radAll
+            // 
+            this.radAll.AutoSize = true;
+            this.radAll.Location = new System.Drawing.Point(164, 7);
+            this.radAll.Name = "radAll";
+            this.radAll.Size = new System.Drawing.Size(58, 19);
+            this.radAll.TabIndex = 0;
+            this.radAll.TabStop = true;
+            this.radAll.Text = "全部";
+            this.radAll.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1182, 714);
+            this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.ClientSize = new System.Drawing.Size(1182, 741);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.progressBar);
@@ -602,6 +708,8 @@
             this.panel1.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -610,8 +718,8 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.FolderBrowserDialog folderBrowser;
-        private System.Windows.Forms.TextBox txtPath;
-        private System.Windows.Forms.Button btnSelfiles;
+        private System.Windows.Forms.TextBox txtPath_before;
+        private System.Windows.Forms.Button btnSelFiles_before;
         private System.Windows.Forms.Button Start;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.RadioButton radFlow;
@@ -655,6 +763,14 @@
         public System.Windows.Forms.ListBox lstbox_BU;
         public System.Windows.Forms.ProgressBar progressBar;
         public System.Windows.Forms.Label labTip;
+        private System.Windows.Forms.TextBox txtPath_after;
+        private System.Windows.Forms.Button btnSelFiles_after;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.RadioButton radAll;
+        private System.Windows.Forms.RadioButton radAfterN;
+        private System.Windows.Forms.RadioButton radBeforeN;
+        private System.Windows.Forms.Label label14;
     }
 }
 
