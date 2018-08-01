@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.label1 = new System.Windows.Forms.Label();
+            this.labBefore = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.txtPath_before = new System.Windows.Forms.TextBox();
             this.btnSelFiles_before = new System.Windows.Forms.Button();
@@ -76,14 +76,23 @@
             this.radGroupSHY = new System.Windows.Forms.RadioButton();
             this.radGroupFHY = new System.Windows.Forms.RadioButton();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.txtPath_after = new System.Windows.Forms.TextBox();
-            this.btnSelFiles_after = new System.Windows.Forms.Button();
-            this.label13 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.radGivenRate = new System.Windows.Forms.RadioButton();
+            this.radHoliday = new System.Windows.Forms.RadioButton();
+            this.radDaily = new System.Windows.Forms.RadioButton();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.radBeforeN = new System.Windows.Forms.RadioButton();
-            this.radAfterN = new System.Windows.Forms.RadioButton();
+            this.radCurNet = new System.Windows.Forms.RadioButton();
             this.radAll = new System.Windows.Forms.RadioButton();
+            this.radAfterN = new System.Windows.Forms.RadioButton();
+            this.radBeforeN = new System.Windows.Forms.RadioButton();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.txtPath_CurNet = new System.Windows.Forms.TextBox();
+            this.txtPath_after = new System.Windows.Forms.TextBox();
+            this.btnSelCurNet = new System.Windows.Forms.Button();
+            this.btnSelFiles_after = new System.Windows.Forms.Button();
+            this.labCurNet = new System.Windows.Forms.Label();
+            this.labAfter = new System.Windows.Forms.Label();
             this.radPanel2.SuspendLayout();
             this.radPanel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -92,22 +101,23 @@
             this.groupBox2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
-            // label1
+            // labBefore
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 80);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(135, 15);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "前N天指标文件夹：";
+            this.labBefore.AutoSize = true;
+            this.labBefore.Location = new System.Drawing.Point(18, 114);
+            this.labBefore.Name = "labBefore";
+            this.labBefore.Size = new System.Drawing.Size(90, 15);
+            this.labBefore.TabIndex = 0;
+            this.labBefore.Text = "前N天指标：";
             // 
             // txtPath_before
             // 
             this.txtPath_before.Enabled = false;
-            this.txtPath_before.Location = new System.Drawing.Point(145, 75);
+            this.txtPath_before.Location = new System.Drawing.Point(136, 109);
             this.txtPath_before.Name = "txtPath_before";
             this.txtPath_before.ReadOnly = true;
             this.txtPath_before.Size = new System.Drawing.Size(920, 25);
@@ -117,7 +127,7 @@
             // 
             this.btnSelFiles_before.BackColor = System.Drawing.Color.White;
             this.btnSelFiles_before.ForeColor = System.Drawing.Color.Black;
-            this.btnSelFiles_before.Location = new System.Drawing.Point(1073, 72);
+            this.btnSelFiles_before.Location = new System.Drawing.Point(1064, 106);
             this.btnSelFiles_before.Name = "btnSelFiles_before";
             this.btnSelFiles_before.Size = new System.Drawing.Size(75, 30);
             this.btnSelFiles_before.TabIndex = 2;
@@ -127,7 +137,7 @@
             // 
             // Start
             // 
-            this.Start.Location = new System.Drawing.Point(546, 699);
+            this.Start.Location = new System.Drawing.Point(554, 759);
             this.Start.Name = "Start";
             this.Start.Size = new System.Drawing.Size(75, 30);
             this.Start.TabIndex = 3;
@@ -138,7 +148,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(784, 34);
+            this.label2.Location = new System.Drawing.Point(798, 35);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(97, 15);
             this.label2.TabIndex = 5;
@@ -147,7 +157,7 @@
             // radFlow
             // 
             this.radFlow.AutoSize = true;
-            this.radFlow.Location = new System.Drawing.Point(16, 7);
+            this.radFlow.Location = new System.Drawing.Point(9, 6);
             this.radFlow.Name = "radFlow";
             this.radFlow.Size = new System.Drawing.Size(58, 19);
             this.radFlow.TabIndex = 6;
@@ -158,7 +168,7 @@
             // radUtilizaerate
             // 
             this.radUtilizaerate.AutoSize = true;
-            this.radUtilizaerate.Location = new System.Drawing.Point(91, 7);
+            this.radUtilizaerate.Location = new System.Drawing.Point(91, 6);
             this.radUtilizaerate.Name = "radUtilizaerate";
             this.radUtilizaerate.Size = new System.Drawing.Size(73, 19);
             this.radUtilizaerate.TabIndex = 6;
@@ -170,7 +180,7 @@
             // 
             this.labTip.BackColor = System.Drawing.Color.Transparent;
             this.labTip.ForeColor = System.Drawing.Color.White;
-            this.labTip.Location = new System.Drawing.Point(12, 626);
+            this.labTip.Location = new System.Drawing.Point(12, 696);
             this.labTip.Name = "labTip";
             this.labTip.Size = new System.Drawing.Size(1158, 23);
             this.labTip.TabIndex = 4;
@@ -178,7 +188,7 @@
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(12, 664);
+            this.progressBar.Location = new System.Drawing.Point(12, 726);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(1158, 23);
             this.progressBar.TabIndex = 7;
@@ -186,7 +196,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 34);
+            this.label3.Location = new System.Drawing.Point(18, 34);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(82, 15);
             this.label3.TabIndex = 8;
@@ -195,7 +205,7 @@
             // radCrtDB
             // 
             this.radCrtDB.AutoSize = true;
-            this.radCrtDB.Location = new System.Drawing.Point(10, 7);
+            this.radCrtDB.Location = new System.Drawing.Point(10, 6);
             this.radCrtDB.Name = "radCrtDB";
             this.radCrtDB.Size = new System.Drawing.Size(103, 19);
             this.radCrtDB.TabIndex = 9;
@@ -207,7 +217,7 @@
             // radAlreadyDB
             // 
             this.radAlreadyDB.AutoSize = true;
-            this.radAlreadyDB.Location = new System.Drawing.Point(145, 7);
+            this.radAlreadyDB.Location = new System.Drawing.Point(145, 6);
             this.radAlreadyDB.Name = "radAlreadyDB";
             this.radAlreadyDB.Size = new System.Drawing.Size(103, 19);
             this.radAlreadyDB.TabIndex = 9;
@@ -219,18 +229,18 @@
             // 
             this.radPanel2.Controls.Add(this.radFlow);
             this.radPanel2.Controls.Add(this.radUtilizaerate);
-            this.radPanel2.Location = new System.Drawing.Point(887, 25);
+            this.radPanel2.Location = new System.Drawing.Point(901, 28);
             this.radPanel2.Name = "radPanel2";
-            this.radPanel2.Size = new System.Drawing.Size(172, 33);
+            this.radPanel2.Size = new System.Drawing.Size(172, 31);
             this.radPanel2.TabIndex = 10;
             // 
             // radPanel1
             // 
             this.radPanel1.Controls.Add(this.radCrtDB);
             this.radPanel1.Controls.Add(this.radAlreadyDB);
-            this.radPanel1.Location = new System.Drawing.Point(145, 25);
+            this.radPanel1.Location = new System.Drawing.Point(136, 26);
             this.radPanel1.Name = "radPanel1";
-            this.radPanel1.Size = new System.Drawing.Size(255, 33);
+            this.radPanel1.Size = new System.Drawing.Size(255, 31);
             this.radPanel1.TabIndex = 10;
             // 
             // groupBox1
@@ -575,101 +585,101 @@
             // groupBox5
             // 
             this.groupBox5.BackColor = System.Drawing.Color.Transparent;
+            this.groupBox5.Controls.Add(this.panel3);
             this.groupBox5.Controls.Add(this.panel2);
+            this.groupBox5.Controls.Add(this.label15);
             this.groupBox5.Controls.Add(this.label3);
             this.groupBox5.Controls.Add(this.label14);
             this.groupBox5.Controls.Add(this.label2);
             this.groupBox5.Controls.Add(this.radPanel1);
             this.groupBox5.Controls.Add(this.radPanel2);
+            this.groupBox5.Controls.Add(this.txtPath_CurNet);
             this.groupBox5.Controls.Add(this.txtPath_after);
             this.groupBox5.Controls.Add(this.txtPath_before);
+            this.groupBox5.Controls.Add(this.btnSelCurNet);
             this.groupBox5.Controls.Add(this.btnSelFiles_after);
             this.groupBox5.Controls.Add(this.btnSelFiles_before);
-            this.groupBox5.Controls.Add(this.label13);
-            this.groupBox5.Controls.Add(this.label1);
+            this.groupBox5.Controls.Add(this.labCurNet);
+            this.groupBox5.Controls.Add(this.labAfter);
+            this.groupBox5.Controls.Add(this.labBefore);
             this.groupBox5.ForeColor = System.Drawing.Color.White;
             this.groupBox5.Location = new System.Drawing.Point(12, 460);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(1158, 154);
+            this.groupBox5.Size = new System.Drawing.Size(1158, 228);
             this.groupBox5.TabIndex = 12;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "执行方式";
             // 
-            // txtPath_after
+            // panel3
             // 
-            this.txtPath_after.Enabled = false;
-            this.txtPath_after.Location = new System.Drawing.Point(145, 117);
-            this.txtPath_after.Name = "txtPath_after";
-            this.txtPath_after.ReadOnly = true;
-            this.txtPath_after.Size = new System.Drawing.Size(920, 25);
-            this.txtPath_after.TabIndex = 1;
+            this.panel3.Controls.Add(this.radGivenRate);
+            this.panel3.Controls.Add(this.radHoliday);
+            this.panel3.Controls.Add(this.radDaily);
+            this.panel3.Location = new System.Drawing.Point(136, 66);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(877, 31);
+            this.panel3.TabIndex = 12;
             // 
-            // btnSelFiles_after
+            // radGivenRate
             // 
-            this.btnSelFiles_after.BackColor = System.Drawing.Color.White;
-            this.btnSelFiles_after.ForeColor = System.Drawing.Color.Black;
-            this.btnSelFiles_after.Location = new System.Drawing.Point(1073, 114);
-            this.btnSelFiles_after.Name = "btnSelFiles_after";
-            this.btnSelFiles_after.Size = new System.Drawing.Size(75, 30);
-            this.btnSelFiles_after.TabIndex = 2;
-            this.btnSelFiles_after.Text = "选择";
-            this.btnSelFiles_after.UseVisualStyleBackColor = false;
-            this.btnSelFiles_after.Click += new System.EventHandler(this.btnSelFiles_after_Click);
+            this.radGivenRate.AutoSize = true;
+            this.radGivenRate.Location = new System.Drawing.Point(613, 9);
+            this.radGivenRate.Name = "radGivenRate";
+            this.radGivenRate.Size = new System.Drawing.Size(133, 19);
+            this.radGivenRate.TabIndex = 0;
+            this.radGivenRate.TabStop = true;
+            this.radGivenRate.Text = "给定增长率预估";
+            this.radGivenRate.UseVisualStyleBackColor = true;
             // 
-            // label13
+            // radHoliday
             // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(9, 122);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(135, 15);
-            this.label13.TabIndex = 0;
-            this.label13.Text = "后N天指标文件夹：";
+            this.radHoliday.AutoSize = true;
+            this.radHoliday.Location = new System.Drawing.Point(319, 6);
+            this.radHoliday.Name = "radHoliday";
+            this.radHoliday.Size = new System.Drawing.Size(163, 19);
+            this.radHoliday.TabIndex = 0;
+            this.radHoliday.TabStop = true;
+            this.radHoliday.Text = "节假日保障容量预估";
+            this.radHoliday.UseVisualStyleBackColor = true;
+            this.radHoliday.CheckedChanged += new System.EventHandler(this.radHoliday_CheckedChanged);
             // 
-            // label14
+            // radDaily
             // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(420, 34);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(82, 15);
-            this.label14.TabIndex = 5;
-            this.label14.Text = "计算范围：";
+            this.radDaily.AutoSize = true;
+            this.radDaily.Location = new System.Drawing.Point(10, 6);
+            this.radDaily.Name = "radDaily";
+            this.radDaily.Size = new System.Drawing.Size(178, 19);
+            this.radDaily.TabIndex = 0;
+            this.radDaily.TabStop = true;
+            this.radDaily.Text = "日常小区容量增长预估";
+            this.radDaily.UseVisualStyleBackColor = true;
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.radCurNet);
             this.panel2.Controls.Add(this.radAll);
             this.panel2.Controls.Add(this.radAfterN);
             this.panel2.Controls.Add(this.radBeforeN);
-            this.panel2.Location = new System.Drawing.Point(508, 25);
+            this.panel2.Location = new System.Drawing.Point(495, 26);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(235, 33);
+            this.panel2.Size = new System.Drawing.Size(297, 31);
             this.panel2.TabIndex = 11;
             // 
-            // radBeforeN
+            // radCurNet
             // 
-            this.radBeforeN.AutoSize = true;
-            this.radBeforeN.Location = new System.Drawing.Point(4, 7);
-            this.radBeforeN.Name = "radBeforeN";
-            this.radBeforeN.Size = new System.Drawing.Size(66, 19);
-            this.radBeforeN.TabIndex = 0;
-            this.radBeforeN.TabStop = true;
-            this.radBeforeN.Text = "前N天";
-            this.radBeforeN.UseVisualStyleBackColor = true;
-            // 
-            // radAfterN
-            // 
-            this.radAfterN.AutoSize = true;
-            this.radAfterN.Location = new System.Drawing.Point(84, 7);
-            this.radAfterN.Name = "radAfterN";
-            this.radAfterN.Size = new System.Drawing.Size(66, 19);
-            this.radAfterN.TabIndex = 0;
-            this.radAfterN.TabStop = true;
-            this.radAfterN.Text = "后N天";
-            this.radAfterN.UseVisualStyleBackColor = true;
+            this.radCurNet.AutoSize = true;
+            this.radCurNet.Location = new System.Drawing.Point(160, 6);
+            this.radCurNet.Name = "radCurNet";
+            this.radCurNet.Size = new System.Drawing.Size(58, 19);
+            this.radCurNet.TabIndex = 1;
+            this.radCurNet.TabStop = true;
+            this.radCurNet.Text = "现网";
+            this.radCurNet.UseVisualStyleBackColor = true;
             // 
             // radAll
             // 
             this.radAll.AutoSize = true;
-            this.radAll.Location = new System.Drawing.Point(164, 7);
+            this.radAll.Location = new System.Drawing.Point(230, 6);
             this.radAll.Name = "radAll";
             this.radAll.Size = new System.Drawing.Size(58, 19);
             this.radAll.TabIndex = 0;
@@ -677,19 +687,117 @@
             this.radAll.Text = "全部";
             this.radAll.UseVisualStyleBackColor = true;
             // 
+            // radAfterN
+            // 
+            this.radAfterN.AutoSize = true;
+            this.radAfterN.Location = new System.Drawing.Point(82, 6);
+            this.radAfterN.Name = "radAfterN";
+            this.radAfterN.Size = new System.Drawing.Size(66, 19);
+            this.radAfterN.TabIndex = 0;
+            this.radAfterN.TabStop = true;
+            this.radAfterN.Text = "后N天";
+            this.radAfterN.UseVisualStyleBackColor = true;
+            // 
+            // radBeforeN
+            // 
+            this.radBeforeN.AutoSize = true;
+            this.radBeforeN.Location = new System.Drawing.Point(4, 6);
+            this.radBeforeN.Name = "radBeforeN";
+            this.radBeforeN.Size = new System.Drawing.Size(66, 19);
+            this.radBeforeN.TabIndex = 0;
+            this.radBeforeN.TabStop = true;
+            this.radBeforeN.Text = "前N天";
+            this.radBeforeN.UseVisualStyleBackColor = true;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(18, 74);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(82, 15);
+            this.label15.TabIndex = 8;
+            this.label15.Text = "预估方式：";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(411, 34);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(82, 15);
+            this.label14.TabIndex = 5;
+            this.label14.Text = "计算范围：";
+            // 
+            // txtPath_CurNet
+            // 
+            this.txtPath_CurNet.Location = new System.Drawing.Point(136, 189);
+            this.txtPath_CurNet.Name = "txtPath_CurNet";
+            this.txtPath_CurNet.ReadOnly = true;
+            this.txtPath_CurNet.Size = new System.Drawing.Size(920, 25);
+            this.txtPath_CurNet.TabIndex = 1;
+            // 
+            // txtPath_after
+            // 
+            this.txtPath_after.Enabled = false;
+            this.txtPath_after.Location = new System.Drawing.Point(136, 149);
+            this.txtPath_after.Name = "txtPath_after";
+            this.txtPath_after.ReadOnly = true;
+            this.txtPath_after.Size = new System.Drawing.Size(920, 25);
+            this.txtPath_after.TabIndex = 1;
+            // 
+            // btnSelCurNet
+            // 
+            this.btnSelCurNet.BackColor = System.Drawing.Color.White;
+            this.btnSelCurNet.ForeColor = System.Drawing.Color.Black;
+            this.btnSelCurNet.Location = new System.Drawing.Point(1064, 186);
+            this.btnSelCurNet.Name = "btnSelCurNet";
+            this.btnSelCurNet.Size = new System.Drawing.Size(75, 30);
+            this.btnSelCurNet.TabIndex = 2;
+            this.btnSelCurNet.Text = "选择";
+            this.btnSelCurNet.UseVisualStyleBackColor = false;
+            this.btnSelCurNet.Click += new System.EventHandler(this.btnSelCurNet_Click);
+            // 
+            // btnSelFiles_after
+            // 
+            this.btnSelFiles_after.BackColor = System.Drawing.Color.White;
+            this.btnSelFiles_after.ForeColor = System.Drawing.Color.Black;
+            this.btnSelFiles_after.Location = new System.Drawing.Point(1064, 146);
+            this.btnSelFiles_after.Name = "btnSelFiles_after";
+            this.btnSelFiles_after.Size = new System.Drawing.Size(75, 30);
+            this.btnSelFiles_after.TabIndex = 2;
+            this.btnSelFiles_after.Text = "选择";
+            this.btnSelFiles_after.UseVisualStyleBackColor = false;
+            this.btnSelFiles_after.Click += new System.EventHandler(this.btnSelFiles_after_Click);
+            // 
+            // labCurNet
+            // 
+            this.labCurNet.AutoSize = true;
+            this.labCurNet.Location = new System.Drawing.Point(18, 194);
+            this.labCurNet.Name = "labCurNet";
+            this.labCurNet.Size = new System.Drawing.Size(84, 15);
+            this.labCurNet.TabIndex = 0;
+            this.labCurNet.Text = "现网7*24：";
+            // 
+            // labAfter
+            // 
+            this.labAfter.AutoSize = true;
+            this.labAfter.Location = new System.Drawing.Point(18, 154);
+            this.labAfter.Name = "labAfter";
+            this.labAfter.Size = new System.Drawing.Size(90, 15);
+            this.labAfter.TabIndex = 0;
+            this.labAfter.Text = "后N天指标：";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
-            this.ClientSize = new System.Drawing.Size(1182, 741);
+            this.ClientSize = new System.Drawing.Size(1182, 798);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.labTip);
             this.Controls.Add(this.Start);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "预扩容工具_Demo";
@@ -708,6 +816,8 @@
             this.panel1.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.ResumeLayout(false);
@@ -716,7 +826,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label labBefore;
         private System.Windows.Forms.FolderBrowserDialog folderBrowser;
         private System.Windows.Forms.TextBox txtPath_before;
         private System.Windows.Forms.Button btnSelFiles_before;
@@ -765,12 +875,21 @@
         public System.Windows.Forms.Label labTip;
         private System.Windows.Forms.TextBox txtPath_after;
         private System.Windows.Forms.Button btnSelFiles_after;
-        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label labAfter;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.RadioButton radAll;
         private System.Windows.Forms.RadioButton radAfterN;
         private System.Windows.Forms.RadioButton radBeforeN;
         private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.RadioButton radGivenRate;
+        private System.Windows.Forms.RadioButton radHoliday;
+        private System.Windows.Forms.RadioButton radDaily;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.TextBox txtPath_CurNet;
+        private System.Windows.Forms.Button btnSelCurNet;
+        private System.Windows.Forms.Label labCurNet;
+        private System.Windows.Forms.RadioButton radCurNet;
     }
 }
 

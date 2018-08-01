@@ -12,7 +12,7 @@ namespace Predilatation
 {
     public class Calculate:SqlServerHelper
     {
-        private MainParam Param = null;
+        public static MainParam Param = null;
 
         public Calculate(MainParam mainParam)
         {
@@ -31,16 +31,16 @@ namespace Predilatation
         {
             try
             {
-                this.oConn.Open();
+                this.oConnOpen();
                 this.oConn.ChangeDatabase("Predilatation");
                 SqlCommand oComm = this.oConn.CreateCommand();
                 oComm.CommandText = "select cellname, " +
                              "(sum(小区用户面上行字节数)+sum(小区用户面下行字节数))/sum(E_RAB建立成功数) as 'E-RAB(KB)', " +
                              "AVG(有效RRC连接平均数) as '平均RRC有效用户数', " +
-                             "SUM(上行占用的PRB个数)/SUM(RRU_PrbUl_TotalNum) as '上行PUSCH PRB利用率', " +
+                             "(SUM(上行占用的PRB个数)/SUM(RRU_PrbUl_TotalNum)) * 100 as '上行PUSCH PRB利用率', " +
                              "AVG(小区用户面上行字节数)/(1024*1024) as '上行流量(G)', " +
-                             "SUM(下行占用的PRB个数)/SUM(RRU_PrbDl_TotalNum) as '下行PDSCH PRB利用率', " +
-                             "SUM(CCE占用量)/SUM(CCE可使用量) as '下行PDCCH CCE利用率', " +
+                             "(SUM(下行占用的PRB个数)/SUM(RRU_PrbDl_TotalNum)) * 100 as '下行PDSCH PRB利用率', " +
+                             "(SUM(CCE占用量)/SUM(CCE可使用量)) * 100 as '下行PDCCH CCE利用率', " +
                              "AVG(小区用户面下行字节数)/(1024*1024) as '下行流量(G)' " +
                              "from " + TableName + " where " + strTyp + " <> '' group by cellname having(sum(E_RAB建立成功数)> 0)";
                 SqlDataReader dr = oComm.ExecuteReader();
@@ -78,6 +78,7 @@ namespace Predilatation
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
                 throw;
             }
         }
@@ -91,7 +92,7 @@ namespace Predilatation
         {
             try
             {
-                this.oConn.Open();
+                this.oConnOpen();
                 this.oConn.ChangeDatabase("Predilatation");
                 SqlCommand oComm = this.oConn.CreateCommand();
                 oComm.CommandText = "select cellname,time, " +
@@ -100,7 +101,7 @@ namespace Predilatation
                              "上行PUSCH_PRB利用率 as '上行PUSCH PRB利用率', " +
                              "小区用户面上行字节数/(1024*1024) as '上行流量(G)', " +
                              "下行PDSCH_PRB利用率 as '下行PDSCH PRB利用率', " +
-                             "下行PDCCH_PRB利用率 as '下行PDCCH CCE利用率', " +
+                             "下行PDCCH_CCE利用率 as '下行PDCCH CCE利用率', " +
                              "小区用户面下行字节数/(1024*1024) as '下行流量(G)' " +
                              "from " + TableName + " where " + strTyp + " <> ''";
                 SqlDataReader dr = oComm.ExecuteReader();
@@ -140,6 +141,7 @@ namespace Predilatation
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
                 throw;
             }
         }
@@ -150,7 +152,7 @@ namespace Predilatation
         /// <param name="conn"></param>
         private void CreateAvgTable(string strTableName)
         {
-            this.oConn.Open();
+            this.oConnOpen();
             this.oConn.ChangeDatabase("Predilatation");
             SqlCommand oComm = this.oConn.CreateCommand();
             try
@@ -188,7 +190,7 @@ namespace Predilatation
         /// <param name="conn"></param>
         private void CreateDateTable(string strTableName)
         {
-            this.oConn.Open();
+            this.oConnOpen();
             this.oConn.ChangeDatabase("Predilatation");
             SqlCommand oComm = this.oConn.CreateCommand();
             try
@@ -212,6 +214,7 @@ namespace Predilatation
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
                 throw ;
             }
             finally
@@ -232,7 +235,7 @@ namespace Predilatation
         /// <param name="dPDCCH_DL"></param>
         /// <param name="Flow_DL"></param>
         /// <returns></returns>
-        private string[] CheckStandard(SqlDataReader dr)
+        private  string[] CheckStandard(SqlDataReader dr)
         {
             string[] strStandard = new string[2];
             
@@ -338,18 +341,18 @@ namespace Predilatation
         /// </summary>
         /// <param name="dERAB"></param>
         /// <returns></returns>
-        private string CheckCellType(double dERAB)
+        public static  string CheckCellType(double dERAB)
         {
             try
             {
                 DataTable dt = new DataTable();
                 string strCellTyp = "";
-                string strExp_B = dERAB.ToString() + Param.strcmbERAB_B + Param.strERAB_B;
+                string strExp_B = dERAB.ToString() + MainForm.Param.strcmbERAB_B + MainForm.Param.strERAB_B;
 
-                string strExp_M = Param.strERAB_MS + Param.strcmbERAB_MS +
-                                  dERAB.ToString() + " and " + dERAB.ToString() + Param.strcmbERAB_ME + Param.strERAB_ME;
-                
-                string strExp_S = dERAB.ToString() + Param.strcmbERAB_S + Param.strERAB_S;
+                string strExp_M = MainForm.Param.strERAB_MS + MainForm.Param.strcmbERAB_MS +
+                                  dERAB.ToString() + " and " + dERAB.ToString() + MainForm.Param.strcmbERAB_ME + MainForm.Param.strERAB_ME;
+
+                string strExp_S = dERAB.ToString() + MainForm.Param.strcmbERAB_S + MainForm.Param.strERAB_S;
 
                 if ((bool)dt.Compute(strExp_B, ""))
                 {

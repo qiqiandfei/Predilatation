@@ -5,8 +5,9 @@ F:\工作\工具\Predilatation\Predilatation\obj\Debug\Interop.ADODB.dll
 F:\工作\工具\Predilatation\Predilatation\obj\Debug\Interop.ADOX.dll
 F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.csproj.ResolveComReference.cache
 F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.MainForm.resources
+F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.Properties.Resources.resources
 F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.csproj.GenerateResource.Cache
 F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.exe
 F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.pdb
 F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.csprojResolveAssemblyReference.cache
-F:\工作\工具\Predilatation\Predilatation\obj\Debug\Predilatation.Properties.Resources.resources
+F:\工作\工具\Predilatation\Predilatation\bin\Debug\Aspose.Cells.dll

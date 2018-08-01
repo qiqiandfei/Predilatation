@@ -25,6 +25,7 @@ namespace Predilatation
 
         private static string strType = "";
         private static string strStdTyp = "";
+        private static string strEstTyp = "";
 
         public static MainParam Param = new MainParam();
 
@@ -52,14 +53,18 @@ namespace Predilatation
             progressBar.Visible = false;
             this.btnSelFiles_before.Enabled = false;
             this.btnSelFiles_after.Enabled = false;
+
+            //隐藏节假日
+            this.labCurNet.Visible = false;
+            this.txtPath_CurNet.Visible = false;
+            this.btnSelCurNet.Visible = false;
+            this.radCurNet.Enabled = false;
         }
 
-        //分析文件夹
-        private static string strSelPath_before = "";
-        private static string strSelPath_after = "";
         //需要分析的文件
         private static string[] files_before = null;
         private static string[] files_after = null;
+        private static string[] files_curnet = null;
 
         //当前状态
         public static string strCurTip = "";
@@ -79,7 +84,7 @@ namespace Predilatation
             if (this.folderBrowser.ShowDialog() == DialogResult.OK)
             {
                 this.txtPath_before.Text = this.folderBrowser.SelectedPath;
-                strSelPath_before = this.txtPath_before.Text;
+                files_before = Directory.GetFiles(this.txtPath_before.Text);
             }
         }
 
@@ -93,7 +98,21 @@ namespace Predilatation
             if (this.folderBrowser.ShowDialog() == DialogResult.OK)
             {
                 this.txtPath_after.Text = this.folderBrowser.SelectedPath;
-                strSelPath_after = this.txtPath_after.Text;
+                files_after = Directory.GetFiles(this.txtPath_after.Text);
+            }
+        }
+
+        /// <summary>
+        /// 选择分析文件夹
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnSelCurNet_Click(object sender, EventArgs e)
+        {
+            if (this.folderBrowser.ShowDialog() == DialogResult.OK)
+            {
+                this.txtPath_CurNet.Text = this.folderBrowser.SelectedPath;
+                files_curnet = Directory.GetFiles(this.txtPath_CurNet.Text);
             }
         }
 
@@ -111,6 +130,7 @@ namespace Predilatation
                 try
                 {
                     this.progressBar.Visible = true;
+                    this.Start.Enabled = false;
                     //业务开始
                     TipReFresher trf = new TipReFresher();
                     trf.CurTip = ReFreshTip;
@@ -134,33 +154,59 @@ namespace Predilatation
         {
             DateTime TimeStart = DateTime.Now;
             nProValue = 0;
-            
+            //获取选定状态
+            SetType();
             if (this.radCrtDB.Checked)
             {
-                if (!string.IsNullOrEmpty(this.txtPath_before.Text) && !string.IsNullOrEmpty(this.txtPath_after.Text))
-                {
-                    //创建前N天数据
-                    DataCreate_Before(trf);
-                    //创建后N一天数据
-                    DataCreate_After(trf);
-                    //同步前后数据
-                    nProValue = 50;
-                    strCurTip = "正在进行数据同步...";
-                    ((TipReFresher)trf).CurTip();
-                    sqlserver.DataSync();
-                    nProValue = 100;
-                    ((TipReFresher)trf).CurTip();
-                }
-                else if (!string.IsNullOrEmpty(this.txtPath_before.Text) && string.IsNullOrEmpty(this.txtPath_after.Text))
+                if (this.radBeforeN.Checked)
                 {
                     //创建前N天数据
                     DataCreate_Before(trf);
                 }
-                else if (string.IsNullOrEmpty(this.txtPath_before.Text) && !string.IsNullOrEmpty(this.txtPath_after.Text))
+                if (this.radAfterN.Checked)
                 {
                     //创建后N天数据
                     DataCreate_After(trf);
                 }
+                if (this.radCurNet.Checked)
+                {
+                    //创建现网数据
+                    DataCreate_CurNet(trf);
+                }
+                if (this.radAll.Checked)
+                {
+                    if (this.radHoliday.Checked)
+                    {
+                        //创建前N天数据
+                        DataCreate_Before(trf);
+                        //创建后N一天数据
+                        DataCreate_After(trf);
+                        //创建现网数据
+                        DataCreate_CurNet(trf);
+                        //同步前后数据
+                        nProValue = 50;
+                        strCurTip = "正在进行数据同步...";
+                        ((TipReFresher)trf).CurTip();
+                        sqlserver.DataSync("Tempdata_CurNet");
+                        nProValue = 100;
+                        ((TipReFresher)trf).CurTip();
+                    }
+                    else
+                    {
+                        //创建前N天数据
+                        DataCreate_Before(trf);
+                        //创建后N一天数据
+                        DataCreate_After(trf);
+                        //同步前后数据
+                        nProValue = 50;
+                        strCurTip = "正在进行数据同步...";
+                        ((TipReFresher)trf).CurTip();
+                        sqlserver.DataSync();
+                        nProValue = 100;
+                        ((TipReFresher)trf).CurTip();
+                    }
+                }
+ 
                 RunByArea(trf);
             }
             else
@@ -200,10 +246,10 @@ namespace Predilatation
             sqlserver.GetTablefromFile(files_before, trf,"Tempdata_Before");
 
             //清洗无效数据
-            nProValue = 0;
+            nProValue = 50;
             strCurTip = "正在清洗前N天无效数据...";
             ((TipReFresher)trf).CurTip();
-            sqlserver.DataClean(files_before, trf,"Tempdata_Before");
+            sqlserver.DataClean(trf,"Tempdata_Before");
 
             
         }
@@ -226,11 +272,37 @@ namespace Predilatation
             sqlserver.GetTablefromFile(files_after, trf, "Tempdata_After");
 
             //清洗无效数据
-            nProValue = 0;
+            nProValue = 50;
             strCurTip = "正在清洗后N天无效数据...";
             ((TipReFresher)trf).CurTip();
-            sqlserver.DataClean(files_after, trf, "Tempdata_After");
+            sqlserver.DataClean(trf, "Tempdata_After");
            
+        }
+
+
+        /// <summary>
+        /// 生成后N天数据业务
+        /// </summary>
+        /// <param name="trf"></param>
+        private void DataCreate_CurNet(object trf)
+        {
+            sqlserver.CreateTable("Tempdata_CurNet");
+            //添加主键
+            sqlserver.AddPrimary("Tempdata_CurNet", "PK_Tempdata_CurNet", "cellname,time");
+            nProValue = 100;
+            ((TipReFresher)trf).CurTip();
+            //文件生成表格并写入数据库
+            nProValue = 0;
+            strCurTip = "正在生成现网7*24数据表格...";
+            ((TipReFresher)trf).CurTip();
+            sqlserver.GetTablefromFile(files_curnet, trf, "Tempdata_CurNet");
+
+            //清洗无效数据
+            nProValue = 50;
+            strCurTip = "正在清洗现网7*24无效数据...";
+            ((TipReFresher)trf).CurTip();
+            sqlserver.DataClean(trf, "Tempdata_CurNet");
+
         }
 
        /// <summary>
@@ -329,6 +401,53 @@ namespace Predilatation
             }
         }
 
+        /// <summary>
+        /// 现网7*24
+        /// </summary>
+        /// <param name="trf"></param>
+        private void BS_CurNet(object trf)
+        {
+            if (this.radFlow.Checked)
+            {
+                strType = "FlowBusy";
+                nProValue = 50;
+                strCurTip = "正在计算现网7*24流量自忙时...";
+                ((TipReFresher)trf).CurTip();
+                sqlserver.CalculateBusy_Flow("Tempdata_CurNet", "FlowBusy_CurNet");
+                nProValue = 100;
+                ((TipReFresher)trf).CurTip();
+            }
+            if (this.radUtilizaerate.Checked)
+            {
+                strType = "Utilizaerate";
+                nProValue = 50;
+                strCurTip = "正在计算现网7*24利用率自忙时...";
+                ((TipReFresher)trf).CurTip();
+                sqlserver.CalculateBusy_Utilizaerate("Tempdata_CurNet", "Utilizaerate_CurNet");
+                nProValue = 100;
+                ((TipReFresher)trf).CurTip();
+
+            }
+
+            //计算后N天扩容标准
+            if (this.radGroupSHY.Checked || this.radGroupFHY.Checked || this.radDTMobile.Checked)
+            {
+                Calculate Cal = new Calculate(Param);
+                nProValue = 50;
+                strCurTip = "正在根据标准计算现网7*24平均扩容条件...";
+                ((TipReFresher)trf).CurTip();
+
+                Cal.CrtAvgData(strType, strStdTyp, trf, "Tempdata_CurNet", "CurNet");
+
+                nProValue = 50;
+                strCurTip = "正在根据标准计算现网7*24每天扩容条件...";
+                ((TipReFresher)trf).CurTip();
+                Cal.CrtDataDate(strType, strStdTyp, trf, "Tempdata_CurNet", "CurNet");
+                nProValue = 100;
+                ((TipReFresher)trf).CurTip();
+            }
+        }
+
 
         /// <summary>
         /// 根据范围计算
@@ -346,8 +465,28 @@ namespace Predilatation
             }
             if (this.radAll.Checked)
             {
-                BS_BeforeN(trf);
-                BS_AfterN(trf);
+                if (this.radHoliday.Checked)
+                {
+                    //BS_BeforeN(trf);
+                    //BS_AfterN(trf);
+                    //BS_CurNet(trf);
+                    MessageBox.Show("敬请期待~");
+                }
+                else
+                {
+                    //BS_BeforeN(trf);
+                    //BS_AfterN(trf);
+                    if (this.radDaily.Checked)
+                    {
+                        EstimateDaily daily = new EstimateDaily();
+                        daily.CalculateEst(strType,strStdTyp,strEstTyp,trf);
+                    }
+                    if (this.radGivenRate.Checked)
+                    {
+                        MessageBox.Show("敬请期待~");
+                    }
+                }
+               
             }
         }
 
@@ -365,93 +504,156 @@ namespace Predilatation
             {
                 if (this.radCrtDB.Checked)
                 {
-                    if (string.IsNullOrEmpty(this.txtPath_before.Text) && string.IsNullOrEmpty(this.txtPath_after.Text))
+                    if (!radBeforeN.Checked && !radAfterN.Checked && !radAll.Checked && !this.radCurNet.Checked)
                     {
-                        strErrMsg = "请选择文件路径！";
+                        strErrMsg = "请选择计算范围！";
                         return strErrMsg;
                     }
 
-                    if (!string.IsNullOrEmpty(this.txtPath_before.Text))
+                    if (this.radBeforeN.Checked)
                     {
-                        files_before = Directory.GetFiles(this.txtPath_before.Text);
-                        if (files_before.Length == 0)
+                        if (!string.IsNullOrEmpty(this.txtPath_before.Text))
                         {
-                            strErrMsg = "前N天所选文件夹无效！";
-                            return strErrMsg;
-                        }
-
-                        bool bflg = false;
-                        foreach (var file in files_before)
-                        {
-                            if (Path.GetExtension(file).ToLower() != ".csv")
+                            if (files_before.Length == 0)
                             {
-                                bflg = true;
-                                break;
+                                strErrMsg = "前N天所选文件夹无效！";
+                                return strErrMsg;
+                            }
+
+                            bool bflg = false;
+                            foreach (var file in files_before)
+                            {
+                                if (Path.GetExtension(file).ToLower() != ".csv")
+                                {
+                                    bflg = true;
+                                    break;
+                                }
+                            }
+
+                            if (bflg)
+                            {
+                                strErrMsg = "前N天所选文件夹中不存在有效文件！";
+                                return strErrMsg;
                             }
                         }
-
-                        if (bflg)
+                        else
                         {
-                            strErrMsg = "前N天所选文件夹中不存在有效文件！";
+                            strErrMsg = "已选择的文件夹与计算范围不一致！";
                             return strErrMsg;
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(this.txtPath_after.Text))
+                    if (this.radAfterN.Checked)
                     {
-                        files_after = Directory.GetFiles(this.txtPath_after.Text);
-                        if (files_after.Length == 0)
+                        if (!string.IsNullOrEmpty(this.txtPath_after.Text))
                         {
-                            strErrMsg = "后N天所选文件夹无效！";
-                            return strErrMsg;
-                        }
-
-                        bool bflg = false;
-                        foreach (var file in files_after)
-                        {
-                            if (Path.GetExtension(file).ToLower() != ".csv")
+                            if (files_after.Length == 0)
                             {
-                                bflg = true;
-                                break;
+                                strErrMsg = "后N天所选文件夹无效！";
+                                return strErrMsg;
+                            }
+
+                            bool bflg = false;
+                            foreach (var file in files_after)
+                            {
+                                if (Path.GetExtension(file).ToLower() != ".csv")
+                                {
+                                    bflg = true;
+                                    break;
+                                }
+                            }
+
+                            if (bflg)
+                            {
+                                strErrMsg = "后N天所选文件夹中不存在有效文件！";
+                                return strErrMsg;
                             }
                         }
-
-                        if (bflg)
+                        else
                         {
-                            strErrMsg = "后N天所选文件夹中不存在有效文件！";
+                            strErrMsg = "已选择的文件夹与计算范围不一致！";
                             return strErrMsg;
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(this.txtPath_before.Text) &&
-                        !string.IsNullOrEmpty(this.txtPath_after.Text))
+                    if (this.radCurNet.Checked)
                     {
-                        if (files_after.Length != files_before.Length)
+                        if (!string.IsNullOrEmpty(this.txtPath_CurNet.Text))
                         {
-                            strErrMsg = "前N与后N天数文件数量不一致！";
+                            if (files_curnet.Length == 0)
+                            {
+                                strErrMsg = "后N天所选文件夹无效！";
+                                return strErrMsg;
+                            }
+
+                            bool bflg = false;
+                            foreach (var file in files_curnet)
+                            {
+                                if (Path.GetExtension(file).ToLower() != ".csv")
+                                {
+                                    bflg = true;
+                                    break;
+                                }
+                            }
+
+                            if (bflg)
+                            {
+                                strErrMsg = "现网7*24所选文件夹中不存在有效文件！";
+                                return strErrMsg;
+                            }
                         }
-                    }
-                    else if(string.IsNullOrEmpty(this.txtPath_before.Text) &&
-                            !string.IsNullOrEmpty(this.txtPath_after.Text))
-                    {
-                        if(this.radBeforeN.Checked)
+                        else
                         {
                             strErrMsg = "已选择的文件夹与计算范围不一致！";
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(this.txtPath_before.Text) &&
-                           string.IsNullOrEmpty(this.txtPath_after.Text))
-                    {
-                        if (this.radAfterN.Checked)
-                        {
-                            strErrMsg = "已选择的文件夹与计算范围不一致！";
+                            return strErrMsg;
                         }
                     }
 
-                    if (!radBeforeN.Checked && !radAfterN.Checked && !radAll.Checked)
+                    if (this.radAll.Checked)
                     {
-                        strErrMsg = "请选择计算范围！";
+                        if (this.radHoliday.Checked)
+                        {
+                            if (string.IsNullOrEmpty(this.txtPath_before.Text) ||
+                                string.IsNullOrEmpty(this.txtPath_after.Text) ||
+                                string.IsNullOrEmpty(this.txtPath_CurNet.Text))
+                            {
+                                strErrMsg = "已选择的文件夹与计算范围不一致！";
+                                return strErrMsg;
+                            }
+
+                            if (!string.IsNullOrEmpty(this.txtPath_before.Text) &&
+                                !string.IsNullOrEmpty(this.txtPath_after.Text) &&
+                                !string.IsNullOrEmpty(this.txtPath_CurNet.Text))
+                            {
+                                if (files_after.Length != files_before.Length || files_after.Length != files_curnet.Length || files_curnet.Length != files_before.Length)
+                                {
+                                    strErrMsg = "节日前后现网数文件数量不一致！";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (string.IsNullOrEmpty(this.txtPath_before.Text) ||
+                                string.IsNullOrEmpty(this.txtPath_after.Text))
+                            {
+                                strErrMsg = "已选择的文件夹与计算范围不一致！";
+                                return strErrMsg;
+                            }
+
+                            if (!string.IsNullOrEmpty(this.txtPath_before.Text) &&
+                                !string.IsNullOrEmpty(this.txtPath_after.Text))
+                            {
+                                if (files_after.Length != files_before.Length)
+                                {
+                                    strErrMsg = "前N与后N天数文件数量不一致！";
+                                }
+                            }
+                        }
                     }
+
+                   
+                  
+                    
                 }
                 
                 if (this.radAlreadyDB.Checked)
@@ -460,7 +662,7 @@ namespace Predilatation
                     //检查数据库是否存在
                     if (string.IsNullOrEmpty(strErrMsg))
                     {
-                        if (!radBeforeN.Checked && !radAfterN.Checked && !radAll.Checked)
+                        if (!radBeforeN.Checked && !radAfterN.Checked && !radAll.Checked && !this.radCurNet.Checked)
                         {
                             strErrMsg = "请选择计算范围！";
                         }
@@ -473,13 +675,33 @@ namespace Predilatation
                         {
                             strErrMsg = sqlserver.CheckTable("Tempdata_After");
                         }
+                        if (this.radCurNet.Checked)
+                        {
+                            strErrMsg = sqlserver.CheckTable("Tempdata_CurNet");
+                        }
                         if (this.radAll.Checked)
                         {
-                            strErrMsg = sqlserver.CheckTable("Tempdata_Before");
-                            if (string.IsNullOrEmpty(strErrMsg))
+                            if (this.radHoliday.Checked)
                             {
-                                strErrMsg = sqlserver.CheckTable("Tempdata_After");
+                                strErrMsg = sqlserver.CheckTable("Tempdata_Before");
+                                if (string.IsNullOrEmpty(strErrMsg))
+                                {
+                                    strErrMsg = sqlserver.CheckTable("Tempdata_After");
+                                    if (string.IsNullOrEmpty(strErrMsg))
+                                    {
+                                        strErrMsg = sqlserver.CheckTable("Tempdata_CurNet");
+                                    }
+                                }
                             }
+                            else
+                            {
+                                strErrMsg = sqlserver.CheckTable("Tempdata_Before");
+                                if (string.IsNullOrEmpty(strErrMsg))
+                                {
+                                    strErrMsg = sqlserver.CheckTable("Tempdata_After");
+                                }
+                            }
+                            
                         }
                     }
                     else
@@ -496,6 +718,29 @@ namespace Predilatation
             return strErrMsg;
         }
 
+        /// <summary>
+        /// 设置当前选定状态
+        /// </summary>
+        private void SetType()
+        {
+            if (this.radGroupFHY.Checked)
+                strStdTyp = "Grp2018Fir";
+            if(this.radGroupSHY.Checked)
+                strStdTyp = "Grp2018Sec";
+            if(this.radDTMobile.Checked)
+                strStdTyp = "DTMobile";
+            if (this.radDaily.Checked)
+                strEstTyp = "Daily";
+            if (this.radHoliday.Checked)
+                strEstTyp = "Holiday";
+            if (this.radGivenRate.Checked)
+                strEstTyp = "GivenRate";
+            if (this.radFlow.Checked)
+                strType = "Flow";
+            if (this.radUtilizaerate.Checked)
+                strType = "Utilizaerate";
+        }
+
 
 
         private void ReFreshTip()
@@ -508,6 +753,9 @@ namespace Predilatation
             else
             {
                 this.labTip.Text = strCurTip;
+
+                if (strCurTip == "分析结束！")
+                    this.Start.Enabled = true;
                 
                 if (nProValue >= 100)
                 {
@@ -734,18 +982,17 @@ namespace Predilatation
         //************************************根据模板初始化********************************************//
         private void radGroupFHY_CheckedChanged(object sender, EventArgs e)
         {
-            strStdTyp = "Grp2018Fir";
             //大包
             this.txtERAB_B.Text = "1000";
             this.cmbERAB_B.SelectedIndex = 0;
             lstbox_BU.Items.Clear();
             lstbox_BU.Items.Add("平均RRC有效用户数>=10");
-            lstbox_BU.Items.Add("上行PUSCH PRB利用率>=0.5");
+            lstbox_BU.Items.Add("上行PUSCH PRB利用率>=50");
             lstbox_BU.Items.Add("上行流量(G)>=0.3");
 
             lstbox_BD.Items.Clear();
             lstbox_BD.Items.Add("平均RRC有效用户数>=10");
-            lstbox_BD.Items.Add("下行PDSCH PRB利用率>=0.7或下行PDCCH CCE利用率>=0.5");
+            lstbox_BD.Items.Add("下行PDSCH PRB利用率>=70或下行PDCCH CCE利用率>=50");
             lstbox_BD.Items.Add("下行流量(G)>=5");
 
             //中包
@@ -755,12 +1002,12 @@ namespace Predilatation
             this.cmbERAB_ME.SelectedIndex = 0;
             lstbox_MU.Items.Clear();
             lstbox_MU.Items.Add("平均RRC有效用户数>=20");
-            lstbox_MU.Items.Add("上行PUSCH PRB利用率>=0.5");
+            lstbox_MU.Items.Add("上行PUSCH PRB利用率>=50");
             lstbox_MU.Items.Add("上行流量(G)>=0.3");
 
             lstbox_MD.Items.Clear();
             lstbox_MD.Items.Add("平均RRC有效用户数>=20");
-            lstbox_MD.Items.Add("下行PDSCH PRB利用率>=0.5或下行PDCCH CCE利用率>=0.5");
+            lstbox_MD.Items.Add("下行PDSCH PRB利用率>=50或下行PDCCH CCE利用率>=50");
             lstbox_MD.Items.Add("下行流量(G)>=3.5");
 
             //小包
@@ -768,12 +1015,12 @@ namespace Predilatation
             this.cmbERAB_S.SelectedIndex = 0;
             lstbox_SU.Items.Clear();
             lstbox_SU.Items.Add("平均RRC有效用户数>=50");
-            lstbox_SU.Items.Add("上行PUSCH PRB利用率>=0.5");
+            lstbox_SU.Items.Add("上行PUSCH PRB利用率>=50");
             lstbox_SU.Items.Add("上行流量(G)>=0.3");
 
             lstbox_SD.Items.Clear();
             lstbox_SD.Items.Add("平均RRC有效用户数>=50");
-            lstbox_SD.Items.Add("下行PDSCH PRB利用率>=0.4或下行PDCCH CCE利用率>=0.5");
+            lstbox_SD.Items.Add("下行PDSCH PRB利用率>=40或下行PDCCH CCE利用率>=50");
             lstbox_SD.Items.Add("下行流量(G)>=2.2");
 
             //参数对象赋值
@@ -798,18 +1045,18 @@ namespace Predilatation
 
         private void radGroupSHY_CheckedChanged(object sender, EventArgs e)
         {
-            strStdTyp = "Grp2018Sec";
+            
             //大包
             this.txtERAB_B.Text = "1000";
             this.cmbERAB_B.SelectedIndex = 0;
             lstbox_BU.Items.Clear();
             lstbox_BU.Items.Add("平均RRC有效用户数>=10");
-            lstbox_BU.Items.Add("上行PUSCH PRB利用率>=0.5或下行PDSCH PRB利用率>=0.5");
+            lstbox_BU.Items.Add("上行PUSCH PRB利用率>=50或下行PDSCH PRB利用率>=50");
             lstbox_BU.Items.Add("上行流量(G)>=0.3或下行流量(G)>=5");
 
             lstbox_BD.Items.Clear();
             lstbox_BD.Items.Add("平均RRC有效用户数>=10");
-            lstbox_BD.Items.Add("下行PDCCH CCE利用率>=0.5");
+            lstbox_BD.Items.Add("下行PDCCH CCE利用率>=50");
 
             //中包
             this.txtERAB_MS.Text = "300";
@@ -818,24 +1065,24 @@ namespace Predilatation
             this.cmbERAB_ME.SelectedIndex = 0;
             lstbox_MU.Items.Clear();
             lstbox_MU.Items.Add("平均RRC有效用户数>=20");
-            lstbox_MU.Items.Add("上行PUSCH PRB利用率>=0.5或下行PDSCH PRB利用率>=0.5");
+            lstbox_MU.Items.Add("上行PUSCH PRB利用率>=50或下行PDSCH PRB利用率>=50");
             lstbox_MU.Items.Add("上行流量(G)>=0.3或下行流量(G)>=3.5");
 
             lstbox_MD.Items.Clear();
             lstbox_MD.Items.Add("平均RRC有效用户数>=20");
-            lstbox_MD.Items.Add("下行PDCCH CCE利用率>=0.5");
+            lstbox_MD.Items.Add("下行PDCCH CCE利用率>=50");
 
             //小包
             this.txtERAB_S.Text = "300";
             this.cmbERAB_S.SelectedIndex = 0;
             lstbox_SU.Items.Clear();
             lstbox_SU.Items.Add("平均RRC有效用户数>=50");
-            lstbox_SU.Items.Add("上行PUSCH PRB利用率>=0.5或下行PDSCH PRB利用率>=0.4");
+            lstbox_SU.Items.Add("上行PUSCH PRB利用率>=50或下行PDSCH PRB利用率>=40");
             lstbox_SU.Items.Add("上行流量(G)>=0.3或下行流量(G)>=2.2");
 
             lstbox_SD.Items.Clear();
             lstbox_SD.Items.Add("平均RRC有效用户数>=50");
-            lstbox_SD.Items.Add("下行PDCCH CCE利用率>=0.5");
+            lstbox_SD.Items.Add("下行PDCCH CCE利用率>=50");
 
             //参数对象赋值
             Param.lstBd = this.lstbox_BD.Items;
@@ -860,18 +1107,17 @@ namespace Predilatation
 
         private void radDTMobile_CheckedChanged(object sender, EventArgs e)
         {
-            strStdTyp = "DTMobile";
             //大包
             this.txtERAB_B.Text = "1000";
             this.cmbERAB_B.SelectedIndex = 0;
             lstbox_BU.Items.Clear();
             lstbox_BU.Items.Add("平均RRC有效用户数>=10");
-            lstbox_BU.Items.Add("上行PUSCH PRB利用率>=0.2");
+            lstbox_BU.Items.Add("上行PUSCH PRB利用率>=20");
             lstbox_BU.Items.Add("上行流量(G)>=0.3");
 
             lstbox_BD.Items.Clear();
             lstbox_BD.Items.Add("平均RRC有效用户数>=10");
-            lstbox_BD.Items.Add("下行PDSCH PRB利用率>=0.5或下行PDCCH CCE利用率>=0.25");
+            lstbox_BD.Items.Add("下行PDSCH PRB利用率>=50或下行PDCCH CCE利用率>=25");
             lstbox_BD.Items.Add("下行流量(G)>=4");
 
             //中包
@@ -881,12 +1127,12 @@ namespace Predilatation
             this.cmbERAB_ME.SelectedIndex = 0;
             lstbox_MU.Items.Clear();
             lstbox_MU.Items.Add("平均RRC有效用户数>=20");
-            lstbox_MU.Items.Add("上行PUSCH PRB利用率>=0.2");
+            lstbox_MU.Items.Add("上行PUSCH PRB利用率>=20");
             lstbox_MU.Items.Add("上行流量(G)>=0.35");
 
             lstbox_MD.Items.Clear();
             lstbox_MD.Items.Add("平均RRC有效用户数>=20");
-            lstbox_MD.Items.Add("下行PDSCH PRB利用率>=0.3或下行PDCCH CCE利用率>=0.2");
+            lstbox_MD.Items.Add("下行PDSCH PRB利用率>=30或下行PDCCH CCE利用率>=20");
             lstbox_MD.Items.Add("下行流量(G)>=3.4");
 
             //小包
@@ -894,12 +1140,12 @@ namespace Predilatation
             this.cmbERAB_S.SelectedIndex = 0;
             lstbox_SU.Items.Clear();
             lstbox_SU.Items.Add("平均RRC有效用户数>=20");
-            lstbox_SU.Items.Add("上行PUSCH PRB利用率>=0.2");
+            lstbox_SU.Items.Add("上行PUSCH PRB利用率>=20");
             lstbox_SU.Items.Add("上行流量(G)>=0.35");
 
             lstbox_SD.Items.Clear();
             lstbox_SD.Items.Add("平均RRC有效用户数>=20");
-            lstbox_SD.Items.Add("下行PDSCH PRB利用率>=0.25或下行PDCCH CCE利用率>=0.2");
+            lstbox_SD.Items.Add("下行PDSCH PRB利用率>=25或下行PDCCH CCE利用率>=20");
             lstbox_SD.Items.Add("下行流量(G)>=2.2");
 
             //参数对象赋值
@@ -938,7 +1184,38 @@ namespace Predilatation
             }
         }
 
-        
+        /// <summary>
+        /// 节假日单选按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void radHoliday_CheckedChanged(object sender, EventArgs e)
+        {
+
+            if (this.radHoliday.Checked)
+            {
+                this.labBefore.Text = "节前M*24：";
+                this.labAfter.Text = "节日M*24：";
+                this.radBeforeN.Text = "节前";
+                this.radAfterN.Text = "节日";
+                this.labCurNet.Visible = true;
+                this.txtPath_CurNet.Visible = true;
+                this.btnSelCurNet.Visible = true;
+                this.radCurNet.Enabled = true;
+
+            }
+            else
+            {
+                this.labBefore.Text = "前N天指标：";
+                this.labAfter.Text = "后N天指标：";
+                this.radBeforeN.Text = "前N天";
+                this.radAfterN.Text = "后N天";
+                this.labCurNet.Visible = false;
+                this.txtPath_CurNet.Visible = false;
+                this.btnSelCurNet.Visible = false;
+                this.radCurNet.Enabled = false;
+            }
+        }
         //************************************根据模板初始化********************************************//
         
     }

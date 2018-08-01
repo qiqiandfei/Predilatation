@@ -13,9 +13,9 @@ namespace Predilatation
 {
     public class SqlServerHelper
     {
-        public string strserver { get; set; }
-        public string struser { get; set; }
-        public string strpwd { get; set; }
+        public static string strserver { get; set; }
+        public static string struser { get; set; }
+        public static string strpwd { get; set; }
         public string strConn { get; set; }
         public SqlConnection oConn { get; set; }
         public SqlCommand oComm{ get; set; }
@@ -48,7 +48,7 @@ namespace Predilatation
             //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
             try
             {
-                this.oConn.Open();
+                this.oConnOpen();
                 oComm.CommandText = "select name From master.dbo.sysdatabases where name='Predilatation'";
                 string res = (string)oComm.ExecuteScalar();
                 if (res != "Predilatation")
@@ -81,7 +81,7 @@ namespace Predilatation
             //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
             try
             {
-                this.oConn.Open();
+                this.oConnOpen();
                 oComm.CommandText = "select name From master.dbo.sysdatabases where name='Predilatation'";
                 string res = (string)oComm.ExecuteScalar();
                 if (res != "Predilatation")
@@ -113,7 +113,7 @@ namespace Predilatation
             //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
             try
             {
-                this.oConn.Open();
+                this.oConnOpen();
                 this.oConn.ChangeDatabase("Predilatation");
                 oComm.CommandText = "select * from sysobjects where  type = 'U' and name = '" + strTableName + "'";
                 string res = (string)oComm.ExecuteScalar();
@@ -145,7 +145,7 @@ namespace Predilatation
         /// <param name="conn"></param>
         public void CreateTable(string strTableName)
         {
-            this.oConn.Open();
+            this.oConnOpen();
             this.oConn.ChangeDatabase("Predilatation");       
             //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
             try
@@ -158,8 +158,8 @@ namespace Predilatation
                                     "RRC连接最大数 numeric(18,4)," +
                                     "有效RRC连接最大数 numeric(18,4)," +
                                     "有效RRC连接平均数 numeric(18,4)," +
-                                    "LTE_上行业务信息PRB占用率 numeric(18,4)," +
-                                    "LTE_下行业务信息PRB占用率 numeric(18,4)," +
+                                    "上行PUSCH_PRB利用率 numeric(18,4)," +
+                                    "下行PDSCH_PRB利用率 numeric(18,4)," +
                                     "PDCCH信道CCE占用率 numeric(18,4)," +
                                     "小区用户面上行字节数 numeric(18,4)," +
                                     "小区用户面下行字节数 numeric(18,4)," +
@@ -170,9 +170,7 @@ namespace Predilatation
                                     "CCE占用量 numeric(18,4)," +
                                     "CCE可使用量 numeric(18,4)," +
                                     "总流量 numeric(18,4)," +
-                                    "上行PUSCH_PRB利用率 numeric(18,4)," +
-                                    "下行PDSCH_PRB利用率 numeric(18,4)," +
-                                    "下行PDCCH_PRB利用率 numeric(18,4)," +
+                                    "下行PDCCH_CCE利用率 numeric(18,4)," +
                                     "平均E_RAB流量 numeric(18,4)," +
                                     "最大利用率 numeric(18,4)," +
                                     "FlowBusy varchar(255),"+
@@ -182,6 +180,7 @@ namespace Predilatation
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
                 throw ;
             }
             finally
@@ -196,7 +195,7 @@ namespace Predilatation
         /// </summary>
         public void AddPrimary(string strTableName,string strPK_Name,string strKey)
         {
-            this.oConn.Open();
+            this.oConnOpen();
             this.oConn.ChangeDatabase("Predilatation");
             //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
             try
@@ -204,8 +203,9 @@ namespace Predilatation
                 oComm.CommandText = "alter table " + strTableName + " add constraint " + strPK_Name + " primary key (" + strKey + ")";
                 oComm.ExecuteNonQuery();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 throw ;
             }
             finally
@@ -221,9 +221,9 @@ namespace Predilatation
         private void ReadConfigFile()
         {
             string[] content = File.ReadAllLines(System.Windows.Forms.Application.StartupPath + "\\DBConfig.txt",Encoding.Default);
-            this.strserver = content[0].Substring(content[0].IndexOf("：")+1);
-            this.struser = content[1].Substring(content[1].IndexOf("：")+1);
-            this.strpwd = content[2].Substring(content[2].IndexOf("：")+1);
+            strserver = content[0].Substring(content[0].IndexOf("：")+1);
+            struser = content[1].Substring(content[1].IndexOf("：")+1);
+            strpwd = content[2].Substring(content[2].IndexOf("：")+1);
         }
 
         /// <summary>
@@ -268,22 +268,21 @@ namespace Predilatation
                     //有效计算无效置0
                     if (!Invalidflg)
                     {
-                        double dF17 = Convert.ToDouble(ItemRow[14]) / Convert.ToDouble(ItemRow[15]);
-                        double dF18 = Convert.ToDouble(ItemRow[16]) / Convert.ToDouble(ItemRow[17]);
-                        double dF19 = Convert.ToDouble(ItemRow[18]) / Convert.ToDouble(ItemRow[19]);
-                        dtrow[17] = Convert.ToDouble(ItemRow[12]) + Convert.ToDouble(ItemRow[13]);
-                        dtrow[18] = dF17;
-                        dtrow[19] = dF18;
-                        dtrow[20] = dF19;
+                        //double dF17 = Convert.ToDouble(ItemRow[14]) / Convert.ToDouble(ItemRow[15]);//上行pusch
+                        //double dF18 = Convert.ToDouble(ItemRow[16]) / Convert.ToDouble(ItemRow[17]);//下行pusch
+                        double dCCE = Convert.ToDouble(ItemRow[18]) / Convert.ToDouble(ItemRow[19]) * 100;//下行cce
+                        dtrow[17] = Convert.ToDouble(ItemRow[12]) + Convert.ToDouble(ItemRow[13]);//总流量
+                        dtrow[18] = dCCE;
+                        //dtrow[20] = dF19;
                         if (Convert.ToDouble(ItemRow[5]) == 0)
                         {
-                            dtrow[21] = 0;
+                            dtrow[19] = 0;
                         }
                         else
                         {
-                            dtrow[21] = (Convert.ToDouble(ItemRow[12]) + Convert.ToDouble(ItemRow[13])) / Convert.ToDouble(ItemRow[5]);
+                            dtrow[19] = (Convert.ToDouble(ItemRow[12]) + Convert.ToDouble(ItemRow[13])) / Convert.ToDouble(ItemRow[5]);//平均ERAB
                         }
-                        dtrow[22] = GetMax(dF17,dF18,dF19);
+                        dtrow[20] = GetMax(Convert.ToDouble(ItemRow[9]), Convert.ToDouble(ItemRow[10]), dCCE);
 
                     }
                     else
@@ -292,12 +291,10 @@ namespace Predilatation
                         dtrow[18] = 0;
                         dtrow[19] = 0;
                         dtrow[20] = 0;
-                        dtrow[21] = 0;
-                        dtrow[22] = 0;
                     }
                    
-                    dtrow[23] = "";
-                    dtrow[24] = "";
+                    dtrow[21] = "";
+                    dtrow[22] = "";
                     dt.Rows.Add(dtrow);
                 }
                 MainForm.strCurTip = "正在将" + strFileName + "写入数据库...";
@@ -334,8 +331,9 @@ namespace Predilatation
                         }
                         sqlbulkcopy.WriteToServer(dt);
                     }
-                    catch (System.Exception)
+                    catch (Exception e)
                     {
+                        Console.WriteLine(e);
                         throw;
                     }
                     finally
@@ -357,8 +355,9 @@ namespace Predilatation
                 oComm.CommandText = "if  exists(select * from sysobjects where  type = 'U' and name = '" + strTableName + "') drop table " + strTableName;
                 oComm.ExecuteNonQuery();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 throw;
             }
             finally
@@ -381,8 +380,8 @@ namespace Predilatation
             new DataColumn("RRC连接最大数",typeof(double)),
             new DataColumn("有效RRC连接最大数",typeof(double)),
             new DataColumn("有效RRC连接平均数",typeof(double)),
-            new DataColumn("LTE_上行业务信息PRB占用率",typeof(double)),
-            new DataColumn("LTE_下行业务信息PRB占用率",typeof(double)),
+            new DataColumn("上行PUSCH_PRB利用率",typeof(double)),
+            new DataColumn("下行PDSCH_PRB利用率",typeof(double)),
             new DataColumn("PDCCH信道CCE占用率",typeof(double)),
             new DataColumn("小区用户面上行字节数",typeof(double)),
             new DataColumn("小区用户面下行字节数",typeof(double)),
@@ -393,9 +392,7 @@ namespace Predilatation
             new DataColumn("CCE占用量",typeof(double)),
             new DataColumn("CCE可使用量",typeof(double)),
             new DataColumn("总流量",typeof(double)),
-            new DataColumn("上行PUSCH_PRB利用率",typeof(double)),
-            new DataColumn("下行PDSCH_PRB利用率",typeof(double)),
-            new DataColumn("下行PDCCH_PRB利用率",typeof(double)),
+            new DataColumn("下行PDCCH_CCE利用率",typeof(double)),
             new DataColumn("平均E_RAB流量",typeof(double)),
             new DataColumn("最大利用率",typeof(double)),
             new DataColumn("FlowBusy",typeof(string)),
@@ -407,38 +404,18 @@ namespace Predilatation
         /// 清洗无效数据
         /// </summary>
         /// <param name="files"></param>
-        public void DataClean(string[] files,object trf,string strTableName)
+        public void DataClean(object trf,string strTableName)
         {
-            string strTime_s = "";
-            string strTime_d = "";
-            this.oConn.Open();
+            this.oConnOpen();
             this.oConn.ChangeDatabase("Predilatation");
             //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
-            for (int i = 0; i < files.Length; i++)
-            {
-                if (Path.GetExtension(files[i]).ToLower() != ".csv")
-                    continue;
 
-                strTime_s = Path.GetFileNameWithoutExtension(files[i]);
-                for (int j = 0; j < files.Length; j++)
-                {
-                    if (Path.GetExtension(files[j]).ToLower() != ".csv")
-                        continue; 
-
-                    strTime_d = Path.GetFileNameWithoutExtension(files[j]);
-                    if (strTime_s != strTime_d)
-                    {
-                        oComm.CommandText = "delete from " + strTableName + " where cellname in (SELECT distinct(cellname) FROM " + strTableName + " where (E_RAB建立成功数 = -1234567890123.1234 or RRC连接最大数 = -1234567890123.1234 or 有效RRC连接最大数 = -1234567890123.1234 or 有效RRC连接平均数 = -1234567890123.1234 or LTE_上行业务信息PRB占用率 = -1234567890123.1234 or LTE_下行业务信息PRB占用率 = -1234567890123.1234 or PDCCH信道CCE占用率 = -1234567890123.1234 or 小区用户面上行字节数 = -1234567890123.1234 or 小区用户面下行字节数 = -1234567890123.1234 or 上行占用的PRB个数 = -1234567890123.1234 or RRU_PrbUl_TotalNum = -1234567890123.1234 or 下行占用的PRB个数 = -1234567890123.1234 or RRU_PrbDl_TotalNum = -1234567890123.1234 or CCE占用量 = -1234567890123.1234 or CCE可使用量 = -1234567890123.1234) and time like '" + strTime_s + "%') and time like '" + strTime_d + "%'";
-                        oComm.ExecuteNonQuery();
-                        
-                    }
-                }
-                oComm.CommandText = "delete FROM " + strTableName + " where (E_RAB建立成功数 = -1234567890123.1234 or RRC连接最大数 = -1234567890123.1234 or 有效RRC连接最大数 = -1234567890123.1234 or 有效RRC连接平均数 = -1234567890123.1234 or LTE_上行业务信息PRB占用率 = -1234567890123.1234 or LTE_下行业务信息PRB占用率 = -1234567890123.1234 or PDCCH信道CCE占用率 = -1234567890123.1234 or 小区用户面上行字节数 = -1234567890123.1234 or 小区用户面下行字节数 = -1234567890123.1234 or 上行占用的PRB个数 = -1234567890123.1234 or RRU_PrbUl_TotalNum = -1234567890123.1234 or 下行占用的PRB个数 = -1234567890123.1234 or RRU_PrbDl_TotalNum = -1234567890123.1234 or CCE占用量 = -1234567890123.1234 or CCE可使用量 = -1234567890123.1234) and time like '" + strTime_s + "%'";
-                oComm.ExecuteNonQuery();
-                //计算进度条
-                MainForm.nProValue += (int)Math.Ceiling(Convert.ToDouble(100 / (double)files.Length));
-                ((TipReFresher)trf).CurTip();
-            }
+            oComm.CommandText = "delete from " + strTableName +
+                " where cellname in (SELECT distinct(cellname) FROM " + strTableName + " where 总流量 = 0 " +
+                                "and 下行PDCCH_CCE利用率 = 0 " +
+                                "and 平均E_RAB流量 = 0 " +
+                                "and 最大利用率 = 0)";
+            oComm.ExecuteNonQuery();
             this.oConn.Close();
         }
 
@@ -448,7 +425,7 @@ namespace Predilatation
         public void CalculateBusy_Flow(string strTableName,string FlowTableName)
         {
 
-            this.oConn.Open();
+            this.oConnOpen();
             this.oConn.ChangeDatabase("Predilatation");
             try
             {
@@ -460,7 +437,7 @@ namespace Predilatation
                 oComm.ExecuteNonQuery();
 
                 //创建临时表
-                oComm.CommandText = "select cellname,time,E_RAB建立成功数,RRC连接最大数,有效RRC连接最大数,有效RRC连接平均数,LTE_上行业务信息PRB占用率,LTE_下行业务信息PRB占用率,PDCCH信道CCE占用率,小区用户面上行字节数,小区用户面下行字节数,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,下行PDCCH_PRB利用率,最大利用率 into " + FlowTableName +
+                oComm.CommandText = "select cellname,time,E_RAB建立成功数,RRC连接最大数,有效RRC连接最大数,有效RRC连接平均数,下行PDCCH_CCE利用率,小区用户面上行字节数,小区用户面下行字节数,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,最大利用率 into " + FlowTableName +
                                     " from " + strTableName + " a," +
                                     "(select b.cellname cellnamen, max(b.总流量) derived1n,SUBSTRING(time,1,10) timen " +
                                     "from " + strTableName + " b where b.总流量 > 0 " +
@@ -479,8 +456,9 @@ namespace Predilatation
                 oComm.ExecuteNonQuery();
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 throw;
             }
             finally
@@ -497,7 +475,7 @@ namespace Predilatation
         {
             List<string[]> lstTemp = new List<string[]>();
             //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
-            oComm.CommandText = "select cellname,time,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,下行PDCCH_PRB利用率,最大利用率 " +
+            oComm.CommandText = "select cellname,time,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,下行PDCCH_CCE利用率,最大利用率 " +
                                 "from " + strTableName + " a, " +
                                 "(select b.cellname cellnamen,SUBSTRING(time,1,10) timen " +
                                 "from " + strTableName + " b " +
@@ -543,7 +521,7 @@ namespace Predilatation
         /// </summary>
         public void CalculateBusy_Utilizaerate(string strTableName, string strUtilizaerateName)
         {
-            this.oConn.Open();
+            this.oConnOpen();
             this.oConn.ChangeDatabase("Predilatation");
             try
             {
@@ -555,7 +533,7 @@ namespace Predilatation
                 oComm.ExecuteNonQuery();
 
                 //创建临时表
-                oComm.CommandText = "select cellname,time,E_RAB建立成功数,RRC连接最大数,有效RRC连接最大数,有效RRC连接平均数,LTE_上行业务信息PRB占用率,LTE_下行业务信息PRB占用率,PDCCH信道CCE占用率,小区用户面上行字节数,小区用户面下行字节数,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,下行PDCCH_PRB利用率,最大利用率 into " + strUtilizaerateName +
+                oComm.CommandText = "select cellname,time,E_RAB建立成功数,RRC连接最大数,有效RRC连接最大数,有效RRC连接平均数,小区用户面上行字节数,小区用户面下行字节数,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,下行PDCCH_CCE利用率,最大利用率 into " + strUtilizaerateName +
                                     " from " + strTableName + " a, " +
                                     "(select b.cellname cellnamen, max(b.最大利用率) maxraten,SUBSTRING(time,1,10) timen " +
                                     "from " + strTableName + " b where b.最大利用率 > 0 " +
@@ -574,8 +552,9 @@ namespace Predilatation
                 oComm.ExecuteNonQuery();
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 throw;
             }
             finally
@@ -592,7 +571,7 @@ namespace Predilatation
         {
             List<string[]> lstTemp = new List<string[]>();
             //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
-            oComm.CommandText = "select cellname,time,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,下行PDCCH_PRB利用率,最大利用率 " +
+            oComm.CommandText = "select cellname,time,总流量,上行PUSCH_PRB利用率,下行PDSCH_PRB利用率,下行PDCCH_CCE利用率,最大利用率 " +
                                 "from " + strTableName + " a, " +
                                 "(select b.cellname cellnamen, max(b.最大利用率) maxraten,SUBSTRING(time,1,10) timen " +
                                 "from " + strTableName + " b where b.最大利用率 > 0 " +
@@ -642,14 +621,38 @@ namespace Predilatation
            
             try
             {
-                this.oConn.Open();
+                this.oConnOpen();
                 this.oConn.ChangeDatabase("Predilatation");
-                //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
                 oComm.CommandText = "delete from Tempdata_After where cellname not in (select distinct(cellname) from Tempdata_Before)";
                 oComm.ExecuteNonQuery();
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
+                throw;
+            }
+            finally
+            {
+                this.oConn.Close();
+            }
+        }
+
+        public void DataSync(string strTableName)
+        {
+
+            try
+            {
+                this.oConnOpen();
+                this.oConn.ChangeDatabase("Predilatation");
+                oComm.CommandText = "delete from Tempdata_After where cellname not in (select distinct(cellname) from Tempdata_Before)";
+                oComm.ExecuteNonQuery();
+
+                oComm.CommandText = "delete from "+ strTableName +" where cellname not in (select distinct(cellname) from Tempdata_Before)";
+                oComm.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
                 throw;
             }
             finally
@@ -665,7 +668,7 @@ namespace Predilatation
         /// <param name="dValue2"></param>
         /// <param name="dValue3"></param>
         /// <returns></returns>
-        private double GetMax(double dValue1,double dValue2,double dValue3)
+        public static double GetMax(double dValue1,double dValue2,double dValue3)
         {
             double Value = Math.Max(dValue1, dValue2);
             if (Value >= dValue3)
@@ -675,6 +678,14 @@ namespace Predilatation
             else
             {
                 return dValue3;
+            }
+        }
+
+        public void oConnOpen()
+        {
+            if (this.oConn.State == ConnectionState.Closed)
+            {
+                this.oConn.Open();
             }
         }
 
