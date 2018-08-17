@@ -247,13 +247,13 @@ namespace Predilatation
                 if (CheckStandard(Param.lstBu, dr))
                     strStandard[0] = "满足";
                 else
-                    strStandard[0] = "";
+                    strStandard[0] = "不满足";
 
                 //下行标准
                 if (CheckStandard(Param.lstBd, dr))
                     strStandard[1] = "满足";
                 else
-                    strStandard[1] = "";
+                    strStandard[1] = "不满足";
             }
             if (strCellTyp == "中包小区")
             {
@@ -261,13 +261,13 @@ namespace Predilatation
                 if (CheckStandard(Param.lstMu, dr))
                     strStandard[0] = "满足";
                 else
-                    strStandard[0] = "";
+                    strStandard[0] = "不满足";
 
                 //下行标准
                 if (CheckStandard(Param.lstMd, dr))
                     strStandard[1] = "满足";
                 else
-                    strStandard[1] = "";
+                    strStandard[1] = "不满足";
             }
             if (strCellTyp == "小包小区")
             {
@@ -275,13 +275,13 @@ namespace Predilatation
                 if (CheckStandard(Param.lstSu, dr))
                     strStandard[0] = "满足";
                 else
-                    strStandard[0] = "";
+                    strStandard[0] = "不满足";
 
                 //下行标准
                 if (CheckStandard(Param.lstSd, dr))
                     strStandard[1] = "满足";
                 else
-                    strStandard[1] = "";
+                    strStandard[1] = "不满足";
             }
 
             return strStandard;

@@ -29,10 +29,10 @@ namespace Predilatation
         public SqlServerHelper()
         {
             ReadConfigFile();
-            strConn = "data source=" + strserver + ";Initial Catalog=master;user id=" + struser + ";pwd=" + strpwd + ";Connect Timeout=600";
+            strConn = "data source=" + strserver + ";Initial Catalog=master;user id=" + struser + ";pwd=" + strpwd + ";Connect Timeout=0";
             oConn = new SqlConnection(strConn);
             oComm = oConn.CreateCommand();
-            oComm.CommandTimeout = 600;
+            oComm.CommandTimeout = 0;
 
         }
 
@@ -197,11 +197,21 @@ namespace Predilatation
         {
             this.oConnOpen();
             this.oConn.ChangeDatabase("Predilatation");
-            //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
             try
             {
                 oComm.CommandText = "alter table " + strTableName + " add constraint " + strPK_Name + " primary key (" + strKey + ")";
                 oComm.ExecuteNonQuery();
+                //给Tempdata_After创建索引
+                //if (strTableName == "Tempdata_After")
+                //{
+                //    oComm.CommandText = "CREATE NONCLUSTERED INDEX FindBiger " +
+                //                        "ON Tempdata_After (有效RRC连接平均数 asc,上行PUSCH_PRB利用率 asc,下行PDSCH_PRB利用率 asc,PDCCH信道CCE占用率 asc,小区用户面上行字节数 asc,小区用户面下行字节数 asc)";
+                //    oComm.ExecuteNonQuery();
+
+                //    oComm.CommandText = "CREATE NONCLUSTERED INDEX FindSmaller " +
+                //                        "ON Tempdata_After (有效RRC连接平均数 desc,上行PUSCH_PRB利用率 desc,下行PDSCH_PRB利用率 desc,PDCCH信道CCE占用率 desc,小区用户面上行字节数 desc,小区用户面下行字节数 desc)";
+                //    oComm.ExecuteNonQuery();
+                //}
             }
             catch (Exception e)
             {
@@ -253,7 +263,7 @@ namespace Predilatation
                     dtrow[1] = ItemRow[4];
                     for (int i = 5; i < 20; i++)
                     {
-                        if (ItemRow[i].Contains('-') || string.IsNullOrEmpty(ItemRow[i]) || ItemRow[i].Contains("#NA"))
+                        if (ItemRow[i].Contains('-') || string.IsNullOrEmpty(ItemRow[i]) || ItemRow[i].Contains("#NA") || ItemRow[i].Contains("N/A"))
                         {
                             Invalidflg = true;
                             dtrow[i - 3] = -1234567890123.1234;
@@ -324,7 +334,7 @@ namespace Predilatation
                     {
                         sqlbulkcopy.DestinationTableName = strTableName;
                         sqlbulkcopy.BatchSize = dt.Rows.Count;
-                        sqlbulkcopy.BulkCopyTimeout = 30;
+                        sqlbulkcopy.BulkCopyTimeout = 0;
                         for (int i = 0; i < dt.Columns.Count; i++)
                         {
                             sqlbulkcopy.ColumnMappings.Add(dt.Columns[i].ColumnName, dt.Columns[i].ColumnName);
@@ -406,17 +416,141 @@ namespace Predilatation
         /// <param name="files"></param>
         public void DataClean(object trf,string strTableName)
         {
-            this.oConnOpen();
-            this.oConn.ChangeDatabase("Predilatation");
-            //SqlCommand oComm = this.oConn.CreateCommand(); = this.oConn.CreateCommand();
+            try
+            {
+                this.oConnOpen();
+                this.oConn.ChangeDatabase("Predilatation");
 
-            oComm.CommandText = "delete from " + strTableName +
-                " where cellname in (SELECT distinct(cellname) FROM " + strTableName + " where 总流量 = 0 " +
-                                "and 下行PDCCH_CCE利用率 = 0 " +
-                                "and 平均E_RAB流量 = 0 " +
-                                "and 最大利用率 = 0)";
-            oComm.ExecuteNonQuery();
-            this.oConn.Close();
+                MainForm.nProValue = 40;
+                MainForm.strCurTip = "正在删除无效数据...";
+                ((TipReFresher)trf).CurTip();
+
+                oComm.CommandText = "delete from  " + strTableName +
+                                    " where 总流量 = 0 " +
+                                    "and 下行PDCCH_CCE利用率 = 0 " +
+                                    "and 平均E_RAB流量 = 0 " +
+                                    "and 最大利用率 = 0";
+                oComm.ExecuteNonQuery();
+                MainForm.nProValue = 100;
+                ((TipReFresher)trf).CurTip();
+
+                MainForm.nProValue = 40;
+                MainForm.strCurTip = "正在删除单日不满足20小时的小区...";
+                ((TipReFresher)trf).CurTip();
+                //删除单日中不满足20小时的小区
+                oComm.CommandText = "select cellname,SUBSTRING(time,1,10) from  " + strTableName +
+                                    " group by cellname,SUBSTRING(time,1,10) having(COUNT(cellname) < 20)";
+                SqlDataReader dr = oComm.ExecuteReader();
+                List<string>lstsql = new List<string>();
+                while (dr.Read() && dr.HasRows)
+                {
+                    lstsql.Add("delete from " + strTableName + " where cellname = '" + Convert.ToString(dr[0]) + "' and time like '%" + Convert.ToString(dr[1]) + "%'");
+                }
+                dr.Close();
+
+                for (int i = 0; i < lstsql.Count; i++)
+                {
+                    oComm.CommandText = lstsql[i];
+                    oComm.ExecuteNonQuery();
+                }
+
+                //前N天删除7天中不满足4天的小区
+                if (strTableName == "Tempdata_Before")
+                {
+
+                    MainForm.nProValue = 60;
+                    MainForm.strCurTip = "正在删除7天中不满足4天的全部小区...";
+                    ((TipReFresher)trf).CurTip();
+                    //删除7天中不满足4天的全部小区
+                    oComm.CommandText = "delete from " + strTableName + " where cellname in (select distinct(cellname) from " + strTableName + " group by cellname having(COUNT(cellname) < 20*4))";
+                    oComm.ExecuteNonQuery();
+                }
+
+                MainForm.nProValue = 100;
+                MainForm.strCurTip = "前N天数据清洗完成！";
+                ((TipReFresher)trf).CurTip();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            finally
+            {
+                this.oComm.Dispose();
+                this.oConn.Close();
+            }
+            
+        }
+
+        /// <summary>
+        /// 清洗节假日数据
+        /// </summary>
+        /// <param name="strTableName"></param>
+        /// <param name="nDays"></param>
+        /// <param name="trf"></param>
+        public void DataClean_Holiday(string strTableName,int nDays,object trf)
+        {
+            try
+            {
+                this.oConnOpen();
+                this.oConn.ChangeDatabase("Predilatation");
+
+                MainForm.nProValue = 40;
+                MainForm.strCurTip = "正在删除无效数据...";
+                ((TipReFresher)trf).CurTip();
+
+                oComm.CommandText = "delete from  " + strTableName +
+                                    " where 总流量 = 0 " +
+                                    "and 下行PDCCH_CCE利用率 = 0 " +
+                                    "and 平均E_RAB流量 = 0 " +
+                                    "and 最大利用率 = 0";
+                oComm.ExecuteNonQuery();
+                MainForm.nProValue = 100;
+                ((TipReFresher)trf).CurTip();
+                //大于三天需要继续清洗
+                if (nDays > 3)
+                {
+                    MainForm.nProValue = 40;
+                    MainForm.strCurTip = "正在删除单日不满足20小时的小区...";
+                    ((TipReFresher)trf).CurTip();
+                    //删除单日中不满足20小时的小区
+                    oComm.CommandText = "select cellname,SUBSTRING(time,1,10) from  " + strTableName +
+                                        " group by cellname,SUBSTRING(time,1,10) having(COUNT(cellname) < 20)";
+                    SqlDataReader dr = oComm.ExecuteReader();
+                    List<string> lstsql = new List<string>();
+                    while (dr.Read() && dr.HasRows)
+                    {
+                        lstsql.Add("delete from " + strTableName + " where cellname = '" + Convert.ToString(dr[0]) + "' and time like '%" + Convert.ToString(dr[1]) + "%'");
+                    }
+                    dr.Close();
+
+                    for (int i = 0; i < lstsql.Count; i++)
+                    {
+                        oComm.CommandText = lstsql[i];
+                        oComm.ExecuteNonQuery();
+                    }
+
+                    if (strTableName == "Tempdata_Before")
+                    {
+                        MainForm.nProValue = 60;
+                        MainForm.strCurTip = "正在删除7天中不满足4天的全部小区...";
+                        ((TipReFresher)trf).CurTip();
+                        //删除7天中不满足4天的全部小区
+                        oComm.CommandText = "delete from " + strTableName + " where cellname in (select distinct(cellname) from " + strTableName + " group by cellname having(COUNT(cellname) < 20*4))";
+                        oComm.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            finally
+            {
+                
+            }
         }
 
         /// <summary>

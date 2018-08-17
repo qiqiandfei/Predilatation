@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-
+using System.Text.RegularExpressions;
 
 
 namespace Predilatation
@@ -23,12 +23,11 @@ namespace Predilatation
         TextBox txtEdit_SD = new TextBox();
 
 
-        private static string strType = "";
-        private static string strStdTyp = "";
-        private static string strEstTyp = "";
+        public static string strType = "";
+        public static string strStdTyp = "";
+        public static string strEstTyp = "";
 
         public static MainParam Param = new MainParam();
-
 
         public MainForm()
         {
@@ -57,8 +56,13 @@ namespace Predilatation
             //隐藏节假日
             this.labCurNet.Visible = false;
             this.txtPath_CurNet.Visible = false;
+            this.btnSelCurNet.Enabled = false;
             this.btnSelCurNet.Visible = false;
             this.radCurNet.Enabled = false;
+
+            //隐藏增长率
+            this.labRate.Visible = false;
+            this.txtRate.Visible = false;
         }
 
         //需要分析的文件
@@ -147,7 +151,6 @@ namespace Predilatation
             {
                 MessageBox.Show("程序出现错误：" + strErrMsg, "提示");
             }
-
         }
 
         private void BusinessStart(object trf)
@@ -183,11 +186,7 @@ namespace Predilatation
                         DataCreate_After(trf);
                         //创建现网数据
                         DataCreate_CurNet(trf);
-                        //同步前后数据
-                        nProValue = 50;
-                        strCurTip = "正在进行数据同步...";
-                        ((TipReFresher)trf).CurTip();
-                        sqlserver.DataSync("Tempdata_CurNet");
+                       
                         nProValue = 100;
                         ((TipReFresher)trf).CurTip();
                     }
@@ -197,13 +196,7 @@ namespace Predilatation
                         DataCreate_Before(trf);
                         //创建后N一天数据
                         DataCreate_After(trf);
-                        //同步前后数据
-                        nProValue = 50;
-                        strCurTip = "正在进行数据同步...";
-                        ((TipReFresher)trf).CurTip();
-                        sqlserver.DataSync();
-                        nProValue = 100;
-                        ((TipReFresher)trf).CurTip();
+                       
                     }
                 }
  
@@ -218,9 +211,6 @@ namespace Predilatation
 
             double elapsedTimeInSeconds = DateTime.Now.Subtract(TimeStart).TotalSeconds;
             MessageBox.Show("总共耗时：" + elapsedTimeInSeconds.ToString());
-
-            
-            
         }
 
         /// <summary>
@@ -246,12 +236,21 @@ namespace Predilatation
             sqlserver.GetTablefromFile(files_before, trf,"Tempdata_Before");
 
             //清洗无效数据
-            nProValue = 50;
-            strCurTip = "正在清洗前N天无效数据...";
-            ((TipReFresher)trf).CurTip();
-            sqlserver.DataClean(trf,"Tempdata_Before");
+            if (!this.radHoliday.Checked)
+            {
+                nProValue = 20;
+                strCurTip = "正在清洗前N天无效数据...";
+                ((TipReFresher) trf).CurTip();
+                sqlserver.DataClean(trf, "Tempdata_Before");
+            }
 
-            
+            else
+            {
+                nProValue = 20;
+                strCurTip = "正在清洗节日前N天无效数据...";
+                ((TipReFresher)trf).CurTip();
+                sqlserver.DataClean_Holiday("Tempdata_Before", files_before.Length, trf);
+            }
         }
 
         /// <summary>
@@ -261,6 +260,9 @@ namespace Predilatation
         private void DataCreate_After(object trf)
         {
             sqlserver.CreateTable("Tempdata_After");
+            nProValue = 40;
+            strCurTip = "正在为后N天数据表创建主键和索引...";
+            ((TipReFresher)trf).CurTip();
             //添加主键
             sqlserver.AddPrimary("Tempdata_After", "PK_Tempdata_After", "cellname,time");
             nProValue = 100;
@@ -272,11 +274,22 @@ namespace Predilatation
             sqlserver.GetTablefromFile(files_after, trf, "Tempdata_After");
 
             //清洗无效数据
-            nProValue = 50;
-            strCurTip = "正在清洗后N天无效数据...";
-            ((TipReFresher)trf).CurTip();
-            sqlserver.DataClean(trf, "Tempdata_After");
-           
+
+            if (!this.radHoliday.Checked)
+            {
+                nProValue = 50;
+                strCurTip = "正在清洗后N天无效数据...";
+                ((TipReFresher) trf).CurTip();
+                sqlserver.DataClean(trf, "Tempdata_After");
+            }
+
+            else
+            {
+                nProValue = 50;
+                strCurTip = "正在清洗节日N天无效数据...";
+                ((TipReFresher)trf).CurTip();
+                sqlserver.DataClean_Holiday("Tempdata_After", files_after.Length, trf);
+            }
         }
 
 
@@ -301,8 +314,7 @@ namespace Predilatation
             nProValue = 50;
             strCurTip = "正在清洗现网7*24无效数据...";
             ((TipReFresher)trf).CurTip();
-            sqlserver.DataClean(trf, "Tempdata_CurNet");
-
+            sqlserver.DataClean_Holiday("Tempdata_CurNet",files_curnet.Length,trf);
         }
 
        /// <summary>
@@ -337,18 +349,31 @@ namespace Predilatation
             if (this.radGroupSHY.Checked || this.radGroupFHY.Checked || this.radDTMobile.Checked)
             {
                 Calculate Cal = new Calculate(Param);
-                nProValue = 50;
-                strCurTip = "正在根据标准计算前N天平均扩容条件...";
-                ((TipReFresher)trf).CurTip();
+                //节假日节前N天不算每天
+                if (!this.radHoliday.Checked)
+                {
+                    nProValue = 50;
+                    strCurTip = "正在根据标准计算前N天平均扩容条件...";
+                    ((TipReFresher)trf).CurTip();
 
-                Cal.CrtAvgData(strType, strStdTyp, trf, "Tempdata_Before", "Before");
+                    Cal.CrtAvgData(strType, strStdTyp, trf, "Tempdata_Before", "Before");
 
-                nProValue = 50;
-                strCurTip = "正在根据标准计算前N天每天扩容条件...";
-                ((TipReFresher)trf).CurTip();
-                Cal.CrtDataDate(strType, strStdTyp, trf, "Tempdata_Before", "Before");
-                nProValue = 100;
-                ((TipReFresher)trf).CurTip();
+                    nProValue = 50;
+                    strCurTip = "正在根据标准计算前N天每天扩容条件...";
+                    ((TipReFresher)trf).CurTip();
+                    Cal.CrtDataDate(strType, strStdTyp, trf, "Tempdata_Before", "Before");
+                    nProValue = 100;
+                    ((TipReFresher)trf).CurTip();
+                }
+                else
+                {
+                    nProValue = 50;
+                    strCurTip = "正在根据标准计算节前N天平均扩容条件...";
+                    ((TipReFresher)trf).CurTip();
+
+                    Cal.CrtAvgData(strType, strStdTyp, trf, "Tempdata_Before", "Before");
+                   
+                }
             }
 
         }
@@ -385,19 +410,33 @@ namespace Predilatation
             if (this.radGroupSHY.Checked || this.radGroupFHY.Checked || this.radDTMobile.Checked)
             {
                 Calculate Cal = new Calculate(Param);
-                nProValue = 50;
-                strCurTip = "正在根据标准计算后N天平均扩容条件...";
-                ((TipReFresher)trf).CurTip();
+                //节假后N天不算均值
+                if (!this.radHoliday.Checked)
+                {
+                    nProValue = 50;
+                    strCurTip = "正在根据标准计算后N天平均扩容条件...";
+                    ((TipReFresher)trf).CurTip();
 
-                Cal.CrtAvgData(strType, strStdTyp, trf, "Tempdata_After", "After");
+                    Cal.CrtAvgData(strType, strStdTyp, trf, "Tempdata_After", "After");
 
 
-                nProValue = 50;
-                strCurTip = "正在根据标准计算后N天每天扩容条件...";
-                ((TipReFresher)trf).CurTip();
-                Cal.CrtDataDate(strType, strStdTyp, trf, "Tempdata_After", "After");
-                nProValue = 100;
-                ((TipReFresher)trf).CurTip();
+                    nProValue = 50;
+                    strCurTip = "正在根据标准计算后N天每天扩容条件...";
+                    ((TipReFresher)trf).CurTip();
+                    Cal.CrtDataDate(strType, strStdTyp, trf, "Tempdata_After", "After");
+                    nProValue = 100;
+                    ((TipReFresher)trf).CurTip();
+                }
+                else
+                {
+
+                    nProValue = 50;
+                    strCurTip = "正在根据标准计算节日N天每天扩容条件...";
+                    ((TipReFresher)trf).CurTip();
+                    Cal.CrtDataDate(strType, strStdTyp, trf, "Tempdata_After", "After");
+                    nProValue = 100;
+                    ((TipReFresher)trf).CurTip();
+                }
             }
         }
 
@@ -429,7 +468,7 @@ namespace Predilatation
 
             }
 
-            //计算后N天扩容标准
+            //计算现网扩容标准
             if (this.radGroupSHY.Checked || this.radGroupFHY.Checked || this.radDTMobile.Checked)
             {
                 Calculate Cal = new Calculate(Param);
@@ -465,26 +504,26 @@ namespace Predilatation
             }
             if (this.radAll.Checked)
             {
+                BS_BeforeN(trf);
+                BS_AfterN(trf);
                 if (this.radHoliday.Checked)
                 {
-                    //BS_BeforeN(trf);
-                    //BS_AfterN(trf);
-                    //BS_CurNet(trf);
-                    MessageBox.Show("敬请期待~");
+                    BS_CurNet(trf);
+                    Estimate holiday = new Estimate();
+                    holiday.CalculateEst(strType, strStdTyp, strEstTyp, trf);
                 }
-                else
+
+                if (this.radDaily.Checked)
                 {
-                    //BS_BeforeN(trf);
-                    //BS_AfterN(trf);
-                    if (this.radDaily.Checked)
-                    {
-                        EstimateDaily daily = new EstimateDaily();
-                        daily.CalculateEst(strType,strStdTyp,strEstTyp,trf);
-                    }
-                    if (this.radGivenRate.Checked)
-                    {
-                        MessageBox.Show("敬请期待~");
-                    }
+                    Estimate daily = new Estimate();
+                    daily.CalculateEst(strType, strStdTyp, strEstTyp, trf);
+                }
+
+                if (this.radGivenRate.Checked)
+                {
+                    double dRate = Convert.ToDouble(this.txtRate.Text.Trim());
+                    Estimate given = new Estimate();
+                    given.CalculateEst(dRate, strType, strStdTyp, strEstTyp, trf);
                 }
                
             }
@@ -622,12 +661,11 @@ namespace Predilatation
                             }
 
                             if (!string.IsNullOrEmpty(this.txtPath_before.Text) &&
-                                !string.IsNullOrEmpty(this.txtPath_after.Text) &&
-                                !string.IsNullOrEmpty(this.txtPath_CurNet.Text))
+                                !string.IsNullOrEmpty(this.txtPath_after.Text))
                             {
-                                if (files_after.Length != files_before.Length || files_after.Length != files_curnet.Length || files_curnet.Length != files_before.Length)
+                                if (files_after.Length != files_before.Length)
                                 {
-                                    strErrMsg = "节日前后现网数文件数量不一致！";
+                                    strErrMsg = "节日前后文件数量不一致！";
                                 }
                             }
                         }
@@ -706,6 +744,31 @@ namespace Predilatation
                     }
                     else
                     {
+                        return strErrMsg;
+                    }
+                    //判断增长率有效性
+                    if (this.radGivenRate.Checked)
+                    {
+                        if (string.IsNullOrEmpty(this.txtRate.Text))
+                        {
+                            strErrMsg = "增长率不能为空！";
+                        }
+                        else
+                        {
+                            string regextext = @"^(-?\d+)(\.\d+)?$";
+                            Regex regex = new Regex(regextext, RegexOptions.None);
+                            if (!regex.IsMatch(this.txtRate.Text.Trim()))
+                            {
+                                strErrMsg = "增长率必须为数字！";
+                            }
+                            else
+                            {
+                                if (Convert.ToDouble(this.txtRate.Text.Trim()) < 0)
+                                {
+                                    strErrMsg = "增长率必须大于0！";
+                                }
+                            }
+                        }
                         return strErrMsg;
                     }
                 }
@@ -1176,11 +1239,13 @@ namespace Predilatation
             {
                 this.btnSelFiles_before.Enabled = true;
                 this.btnSelFiles_after.Enabled = true;
+                this.btnSelCurNet.Enabled = true;
             }
             else
             {
                 this.btnSelFiles_before.Enabled = false;
                 this.btnSelFiles_after.Enabled = false;
+                this.btnSelCurNet.Enabled = false;
             }
         }
 
@@ -1198,11 +1263,11 @@ namespace Predilatation
                 this.labAfter.Text = "节日M*24：";
                 this.radBeforeN.Text = "节前";
                 this.radAfterN.Text = "节日";
+                this.radCurNet.Enabled = true;
                 this.labCurNet.Visible = true;
                 this.txtPath_CurNet.Visible = true;
+                this.txtPath_CurNet.Enabled = false;
                 this.btnSelCurNet.Visible = true;
-                this.radCurNet.Enabled = true;
-
             }
             else
             {
@@ -1216,6 +1281,26 @@ namespace Predilatation
                 this.radCurNet.Enabled = false;
             }
         }
+
+        /// <summary>
+        /// 给定增长率按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void radGivenRate_CheckedChanged(object sender, EventArgs e)
+        {
+            if (this.radGivenRate.Checked)
+            {
+                this.labRate.Visible = true;
+                this.txtRate.Visible = true;
+            }
+            else
+            {
+                this.labRate.Visible = false;
+                this.txtRate.Visible = false;
+            }
+        }
+
         //************************************根据模板初始化********************************************//
         
     }

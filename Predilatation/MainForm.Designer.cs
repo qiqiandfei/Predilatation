@@ -77,6 +77,8 @@
             this.radGroupFHY = new System.Windows.Forms.RadioButton();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.txtRate = new System.Windows.Forms.TextBox();
+            this.labRate = new System.Windows.Forms.Label();
             this.radGivenRate = new System.Windows.Forms.RadioButton();
             this.radHoliday = new System.Windows.Forms.RadioButton();
             this.radDaily = new System.Windows.Forms.RadioButton();
@@ -116,6 +118,8 @@
             // 
             // txtPath_before
             // 
+            this.txtPath_before.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPath_before.Enabled = false;
             this.txtPath_before.Location = new System.Drawing.Point(136, 109);
             this.txtPath_before.Name = "txtPath_before";
@@ -125,6 +129,7 @@
             // 
             // btnSelFiles_before
             // 
+            this.btnSelFiles_before.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSelFiles_before.BackColor = System.Drawing.Color.White;
             this.btnSelFiles_before.ForeColor = System.Drawing.Color.Black;
             this.btnSelFiles_before.Location = new System.Drawing.Point(1064, 106);
@@ -137,6 +142,7 @@
             // 
             // Start
             // 
+            this.Start.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.Start.Location = new System.Drawing.Point(554, 759);
             this.Start.Name = "Start";
             this.Start.Size = new System.Drawing.Size(75, 30);
@@ -178,6 +184,8 @@
             // 
             // labTip
             // 
+            this.labTip.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.labTip.BackColor = System.Drawing.Color.Transparent;
             this.labTip.ForeColor = System.Drawing.Color.White;
             this.labTip.Location = new System.Drawing.Point(12, 696);
@@ -188,6 +196,8 @@
             // 
             // progressBar
             // 
+            this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBar.Location = new System.Drawing.Point(12, 726);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(1158, 23);
@@ -245,6 +255,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.BackColor = System.Drawing.Color.Transparent;
             this.groupBox1.Controls.Add(this.groupBox3);
             this.groupBox1.Controls.Add(this.groupBox4);
@@ -260,6 +272,8 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.lstbox_BD);
             this.groupBox3.Controls.Add(this.lstbox_BU);
             this.groupBox3.Controls.Add(this.label10);
@@ -277,6 +291,7 @@
             // 
             // lstbox_BD
             // 
+            this.lstbox_BD.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lstbox_BD.FormattingEnabled = true;
             this.lstbox_BD.HorizontalScrollbar = true;
             this.lstbox_BD.ItemHeight = 15;
@@ -289,6 +304,7 @@
             // 
             // lstbox_BU
             // 
+            this.lstbox_BU.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lstbox_BU.FormattingEnabled = true;
             this.lstbox_BU.HorizontalScrollbar = true;
             this.lstbox_BU.ItemHeight = 15;
@@ -301,6 +317,7 @@
             // 
             // label10
             // 
+            this.label10.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(751, 57);
             this.label10.Name = "label10";
@@ -310,6 +327,7 @@
             // 
             // label7
             // 
+            this.label7.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(348, 57);
             this.label7.Name = "label7";
@@ -319,6 +337,7 @@
             // 
             // txtERAB_B
             // 
+            this.txtERAB_B.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtERAB_B.Location = new System.Drawing.Point(230, 52);
             this.txtERAB_B.Name = "txtERAB_B";
             this.txtERAB_B.Size = new System.Drawing.Size(50, 25);
@@ -326,6 +345,7 @@
             // 
             // cmbERAB_B
             // 
+            this.cmbERAB_B.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.cmbERAB_B.FormattingEnabled = true;
             this.cmbERAB_B.Items.AddRange(new object[] {
             ">=",
@@ -337,6 +357,7 @@
             // 
             // label4
             // 
+            this.label4.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(59, 57);
             this.label4.Name = "label4";
@@ -346,6 +367,8 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox4.Controls.Add(this.lstbox_SD);
             this.groupBox4.Controls.Add(this.label12);
             this.groupBox4.Controls.Add(this.lstbox_SU);
@@ -363,6 +386,7 @@
             // 
             // lstbox_SD
             // 
+            this.lstbox_SD.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lstbox_SD.FormattingEnabled = true;
             this.lstbox_SD.HorizontalScrollbar = true;
             this.lstbox_SD.ItemHeight = 15;
@@ -375,6 +399,7 @@
             // 
             // label12
             // 
+            this.label12.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(751, 56);
             this.label12.Name = "label12";
@@ -384,6 +409,7 @@
             // 
             // lstbox_SU
             // 
+            this.lstbox_SU.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lstbox_SU.FormattingEnabled = true;
             this.lstbox_SU.HorizontalScrollbar = true;
             this.lstbox_SU.ItemHeight = 15;
@@ -396,6 +422,7 @@
             // 
             // label9
             // 
+            this.label9.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label9.AutoSize = true;
             this.label9.Location = new System.Drawing.Point(348, 56);
             this.label9.Name = "label9";
@@ -405,6 +432,7 @@
             // 
             // label6
             // 
+            this.label6.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(59, 56);
             this.label6.Name = "label6";
@@ -414,6 +442,7 @@
             // 
             // cmbERAB_S
             // 
+            this.cmbERAB_S.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.cmbERAB_S.FormattingEnabled = true;
             this.cmbERAB_S.Items.AddRange(new object[] {
             "<",
@@ -425,6 +454,7 @@
             // 
             // txtERAB_S
             // 
+            this.txtERAB_S.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtERAB_S.Location = new System.Drawing.Point(230, 51);
             this.txtERAB_S.Name = "txtERAB_S";
             this.txtERAB_S.Size = new System.Drawing.Size(50, 25);
@@ -432,6 +462,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.lstbox_MD);
             this.groupBox2.Controls.Add(this.lstbox_MU);
             this.groupBox2.Controls.Add(this.label11);
@@ -451,6 +483,7 @@
             // 
             // lstbox_MD
             // 
+            this.lstbox_MD.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lstbox_MD.FormattingEnabled = true;
             this.lstbox_MD.HorizontalScrollbar = true;
             this.lstbox_MD.ItemHeight = 15;
@@ -463,6 +496,7 @@
             // 
             // lstbox_MU
             // 
+            this.lstbox_MU.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lstbox_MU.FormattingEnabled = true;
             this.lstbox_MU.HorizontalScrollbar = true;
             this.lstbox_MU.ItemHeight = 15;
@@ -475,6 +509,7 @@
             // 
             // label11
             // 
+            this.label11.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label11.AutoSize = true;
             this.label11.Location = new System.Drawing.Point(751, 57);
             this.label11.Name = "label11";
@@ -484,6 +519,7 @@
             // 
             // label8
             // 
+            this.label8.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label8.AutoSize = true;
             this.label8.Location = new System.Drawing.Point(348, 57);
             this.label8.Name = "label8";
@@ -493,6 +529,7 @@
             // 
             // txtERAB_MS
             // 
+            this.txtERAB_MS.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtERAB_MS.Location = new System.Drawing.Point(6, 52);
             this.txtERAB_MS.Name = "txtERAB_MS";
             this.txtERAB_MS.Size = new System.Drawing.Size(50, 25);
@@ -500,6 +537,7 @@
             // 
             // cmbERAB_MS
             // 
+            this.cmbERAB_MS.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.cmbERAB_MS.FormattingEnabled = true;
             this.cmbERAB_MS.Items.AddRange(new object[] {
             "<=",
@@ -511,6 +549,7 @@
             // 
             // txtERAB_ME
             // 
+            this.txtERAB_ME.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.txtERAB_ME.Location = new System.Drawing.Point(280, 52);
             this.txtERAB_ME.Name = "txtERAB_ME";
             this.txtERAB_ME.Size = new System.Drawing.Size(50, 25);
@@ -518,6 +557,7 @@
             // 
             // cmbERAB_ME
             // 
+            this.cmbERAB_ME.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.cmbERAB_ME.FormattingEnabled = true;
             this.cmbERAB_ME.Items.AddRange(new object[] {
             "<",
@@ -529,6 +569,7 @@
             // 
             // label5
             // 
+            this.label5.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(118, 57);
             this.label5.Name = "label5";
@@ -584,6 +625,8 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox5.BackColor = System.Drawing.Color.Transparent;
             this.groupBox5.Controls.Add(this.panel3);
             this.groupBox5.Controls.Add(this.panel2);
@@ -612,24 +655,43 @@
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.txtRate);
+            this.panel3.Controls.Add(this.labRate);
             this.panel3.Controls.Add(this.radGivenRate);
             this.panel3.Controls.Add(this.radHoliday);
             this.panel3.Controls.Add(this.radDaily);
             this.panel3.Location = new System.Drawing.Point(136, 66);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(877, 31);
+            this.panel3.Size = new System.Drawing.Size(937, 31);
             this.panel3.TabIndex = 12;
+            // 
+            // txtRate
+            // 
+            this.txtRate.Location = new System.Drawing.Point(841, 3);
+            this.txtRate.Name = "txtRate";
+            this.txtRate.Size = new System.Drawing.Size(50, 25);
+            this.txtRate.TabIndex = 2;
+            // 
+            // labRate
+            // 
+            this.labRate.AutoSize = true;
+            this.labRate.Location = new System.Drawing.Point(769, 8);
+            this.labRate.Name = "labRate";
+            this.labRate.Size = new System.Drawing.Size(67, 15);
+            this.labRate.TabIndex = 1;
+            this.labRate.Text = "增长率：";
             // 
             // radGivenRate
             // 
             this.radGivenRate.AutoSize = true;
-            this.radGivenRate.Location = new System.Drawing.Point(613, 9);
+            this.radGivenRate.Location = new System.Drawing.Point(613, 6);
             this.radGivenRate.Name = "radGivenRate";
             this.radGivenRate.Size = new System.Drawing.Size(133, 19);
             this.radGivenRate.TabIndex = 0;
             this.radGivenRate.TabStop = true;
             this.radGivenRate.Text = "给定增长率预估";
             this.radGivenRate.UseVisualStyleBackColor = true;
+            this.radGivenRate.CheckedChanged += new System.EventHandler(this.radGivenRate_CheckedChanged);
             // 
             // radHoliday
             // 
@@ -729,6 +791,8 @@
             // 
             // txtPath_CurNet
             // 
+            this.txtPath_CurNet.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPath_CurNet.Location = new System.Drawing.Point(136, 189);
             this.txtPath_CurNet.Name = "txtPath_CurNet";
             this.txtPath_CurNet.ReadOnly = true;
@@ -737,6 +801,8 @@
             // 
             // txtPath_after
             // 
+            this.txtPath_after.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPath_after.Enabled = false;
             this.txtPath_after.Location = new System.Drawing.Point(136, 149);
             this.txtPath_after.Name = "txtPath_after";
@@ -746,6 +812,7 @@
             // 
             // btnSelCurNet
             // 
+            this.btnSelCurNet.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSelCurNet.BackColor = System.Drawing.Color.White;
             this.btnSelCurNet.ForeColor = System.Drawing.Color.Black;
             this.btnSelCurNet.Location = new System.Drawing.Point(1064, 186);
@@ -758,6 +825,7 @@
             // 
             // btnSelFiles_after
             // 
+            this.btnSelFiles_after.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSelFiles_after.BackColor = System.Drawing.Color.White;
             this.btnSelFiles_after.ForeColor = System.Drawing.Color.Black;
             this.btnSelFiles_after.Location = new System.Drawing.Point(1064, 146);
@@ -798,9 +866,10 @@
             this.Controls.Add(this.labTip);
             this.Controls.Add(this.Start);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "预扩容工具_Demo";
+            this.Text = "网络容量扩容演算工具_V1.0.0";
             this.radPanel2.ResumeLayout(false);
             this.radPanel2.PerformLayout();
             this.radPanel1.ResumeLayout(false);
@@ -890,6 +959,8 @@
         private System.Windows.Forms.Button btnSelCurNet;
         private System.Windows.Forms.Label labCurNet;
         private System.Windows.Forms.RadioButton radCurNet;
+        private System.Windows.Forms.TextBox txtRate;
+        private System.Windows.Forms.Label labRate;
     }
 }
 
