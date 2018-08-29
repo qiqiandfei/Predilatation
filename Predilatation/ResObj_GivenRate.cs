@@ -651,6 +651,7 @@ namespace Predilatation
                     if (string.IsNullOrEmpty(Convert.ToString(drs[0][3])))
                     {
                         res.Remarks = "无流量";
+                        res.CellTyp_AVG = Convert.ToString(drs[0][4]);
                     }
                     else
                     {
