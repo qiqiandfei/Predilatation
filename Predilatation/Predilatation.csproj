@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -39,7 +39,7 @@
   <ItemGroup>
     <Reference Include="Aspose.Cells, Version=17.7.0.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\测试管理部人员在岗工具\人员管理\UserStatistics\UserStatistics\bin\Debug\Aspose.Cells.dll</HintPath>
+      <HintPath>bin\Debug\Aspose.Cells.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,33 +54,56 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractResObj.cs" />
-    <Compile Include="Calculate.cs" />
-    <Compile Include="DataClean.cs" />
-    <Compile Include="Estimate.cs" />
-    <Compile Include="Factory_Res.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="DilatationBS.cs" />
+    <Compile Include="扩容预估\AbstractResObj.cs" />
+    <Compile Include="扩容预估\Calculate.cs" />
+    <Compile Include="ChooseFunForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="ChooseFunForm.Designer.cs">
+      <DependentUpon>ChooseFunForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="扩容预估\DataClean.cs" />
+    <Compile Include="扩容计算\DilatationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="扩容计算\DilatationForm.Designer.cs">
+      <DependentUpon>DilatationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="扩容预估\Estimate.cs" />
+    <Compile Include="Excel_CSVHelper.cs" />
+    <Compile Include="扩容预估\Factory_Res.cs" />
+    <Compile Include="扩容预估\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="扩容预估\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainParam.cs" />
+    <Compile Include="扩容预估\MainParam.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ResObj.cs" />
-    <Compile Include="ResObj_Daily.cs" />
-    <Compile Include="ResObj_GivenRate.cs" />
-    <Compile Include="ResObj_Holiday.cs" />
+    <Compile Include="扩容预估\ResObj.cs" />
+    <Compile Include="扩容预估\ResObj_Daily.cs" />
+    <Compile Include="扩容预估\ResObj_GivenRate.cs" />
+    <Compile Include="扩容预估\ResObj_Holiday.cs" />
     <Compile Include="SqlServerHelper.cs" />
-    <Compile Include="TempProcess.cs" />
+    <Compile Include="扩容预估\TempProcess.cs" />
     <Compile Include="TipReFresher.cs" />
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="ChooseFunForm.resx">
+      <DependentUpon>ChooseFunForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="扩容计算\DilatationForm.resx">
+      <DependentUpon>DilatationForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="扩容预估\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

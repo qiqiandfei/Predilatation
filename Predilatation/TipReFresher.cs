@@ -9,5 +9,6 @@ namespace Predilatation
     class TipReFresher
     {
         public Action CurTip;
+        public Action ChangeState;
     }
 }

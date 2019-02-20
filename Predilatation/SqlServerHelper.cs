@@ -139,6 +139,8 @@ namespace Predilatation
             return strErrMsg;
         }
 
+
+
         /// <summary>
         /// 创建表
         /// </summary>
@@ -823,5 +825,231 @@ namespace Predilatation
             }
         }
 
+        /// <summary>
+        /// 如果表存在就删除
+        /// </summary>
+        /// <param name="strtablename"></param>
+        public void ChkTableAndDel(string strtablename)
+        {
+            try
+            {
+                this.oConnOpen();
+                this.oConn.ChangeDatabase("Predilatation");
+                oComm.CommandText = "select * from sysobjects where  type = 'U' and name = '" + strtablename + "'";
+                string res = (string)oComm.ExecuteScalar();
+                if (res == strtablename)
+                {
+                    DelTempTable(strtablename);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            oComm.Dispose();
+            this.oConn.Close();
+        }
+
+        /// <summary>
+        /// 根据DataTale创建表
+        /// </summary>
+        /// <param name="dt"></param>
+        public void CreatTableByDataTable(DataTable dt,string strtablename)
+        {
+            try
+            {
+                this.oConnOpen();
+                this.oConn.ChangeDatabase("Predilatation");
+                string strheader = "if  exists(select * from sysobjects where  type = 'U' and name = '" + strtablename +
+                                    "') drop table " + strtablename +
+                                    " create table " + strtablename + "(";
+
+                oComm.CommandText = "";
+
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    oComm.CommandText += dt.Columns[i].ColumnName + " varchar(500),";
+                }
+                oComm.CommandText = oComm.CommandText.Substring(0, oComm.CommandText.Length - 1);
+                oComm.CommandText = strheader + oComm.CommandText + ")";
+                oComm.ExecuteNonQuery();
+                oComm.Dispose();
+                this.oConn.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 创建扩容结果表
+        /// </summary>
+        /// <param name="strtablename"></param>
+        public void CreateResTable(string strtablename)
+        {
+            try
+            {
+                this.oConnOpen();
+                this.oConn.ChangeDatabase("Predilatation");
+                oComm.CommandText = "if  exists(select * from sysobjects where  type = 'U' and name = '" + strtablename +
+                                    "') drop table " + strtablename +
+                                    " create table " + strtablename + "(";
+                oComm.CommandText += "cellname varchar(200),";
+                oComm.CommandText += "网元友好名 varchar(200),";
+                oComm.CommandText += "网元标识 int,";
+                oComm.CommandText += "基站需扩容小区数 int,";
+                oComm.CommandText += "站点配置小区数 int,";
+                oComm.CommandText += "主控板类型 varchar(50),";
+                oComm.CommandText += "主控板支持小区数 int,";
+                oComm.CommandText += "基带槽位余量 int,";
+                oComm.CommandText += "基带支持小区数 int,";
+                oComm.CommandText += "RRU支持小区数 int,";
+                oComm.CommandText += "实际可扩小区数 int,";
+                oComm.CommandText += "更换板卡后可扩容个数 int,";
+                oComm.CommandText += "扩容SectorID int,";
+                oComm.CommandText += "当前Sector配置小区数 int,";
+                oComm.CommandText += "当前Sector的F频段RRU型号 varchar(50),";
+                oComm.CommandText += "当前Sector的D频段RRU型号 varchar(50),";
+                oComm.CommandText += "当前Sector的E频段RRU型号 varchar(50),";
+                oComm.CommandText += "当前Sector_F频RRU支持频率 varchar(50),";
+                oComm.CommandText += "当前Sector_D频RRU支持频率 varchar(50),";
+                oComm.CommandText += "当前Sector_E频RRU支持频率 varchar(50),";
+                oComm.CommandText += "当前Sector_A频RRU支持频率 varchar(50),";
+                oComm.CommandText += "当前Sector_RRU支持小区数 int,";
+                oComm.CommandText += "当前Sector频点配置 varchar(50),";
+                oComm.CommandText += "当前Sector_F频段配置 varchar(50),";
+                oComm.CommandText += "当前Sector_D频段配置 varchar(50),";
+                oComm.CommandText += "当前Sector_E频段配置 varchar(50),";
+                oComm.CommandText += "当前Sector_A频段配置 varchar(50),";
+                oComm.CommandText += "建议扩容频点 varchar(50),";
+                oComm.CommandText += "扩容方式 varchar(50),";
+                oComm.CommandText += "共覆盖站点 varchar(50),";
+                oComm.CommandText += "备注 varchar(255))";
+                oComm.ExecuteNonQuery();
+
+                oComm.CommandText = "insert into 扩容结果(cellname) select cellname from 扩容小区清单";
+                oComm.ExecuteNonQuery();
+                
+                oComm.Dispose();
+                this.oConn.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 从老表中复制数据到新表
+        /// </summary>
+        /// <param name="stroldtablename"></param>
+        /// <param name="strnewtablename"></param>
+        public void CopyDataFromTable(string stroldtablename, string strnewtablename)
+        {
+            try
+            {
+                this.oConnOpen();
+                this.oConn.ChangeDatabase("Predilatation");
+
+                oComm.CommandText = "select cellname into " + strnewtablename + " from " + stroldtablename + " where 上行扩容标准_est  = '满足' or 下行扩容标准_est = '满足'";
+                oComm.ExecuteNonQuery();
+                
+                oComm.Dispose();
+                this.oConn.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+           
+        }
+
+
+        /// <summary>
+        /// 判断表是否存在
+        /// </summary>
+        /// <param name="strTableName"></param>
+        /// <returns></returns>
+        public bool CheckTableExist(string strTableName)
+        {
+            try
+            {
+                this.oConnOpen();
+                this.oConn.ChangeDatabase("Predilatation");
+                oComm.CommandText = "select * from sysobjects where  type = 'U' and name = '" + strTableName + "'";
+                string res = (string)oComm.ExecuteScalar();
+                if (res != strTableName)
+                {
+                    oComm.Dispose();
+                    this.oConn.Close();
+                    return false;
+                }
+
+                oComm.Dispose();
+                this.oConn.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 选择结果表导出到Excel
+        /// </summary>
+        /// <param name="strTableName"></param>
+        /// <returns></returns>
+        public DataTable GetResTable(string strTableName)
+        {
+            DataTable resdt = new DataTable();
+            resdt.TableName = strTableName;
+            try
+            {
+                this.oConnOpen();
+                this.oConn.ChangeDatabase("Predilatation");
+                //获取列名
+                oComm.CommandText = "select name from syscolumns where id = object_id('" + strTableName + "')";
+                SqlDataReader dr = oComm.ExecuteReader();
+
+                int rowcount = 0;
+                while (dr.Read() && dr.HasRows)
+                {
+                    resdt.Columns.Add(Convert.ToString(dr[0]));
+                    rowcount++;
+                }
+                dr.Close();
+
+                oComm.CommandText = "select * from " + strTableName;
+                dr = oComm.ExecuteReader();
+                while (dr.Read() && dr.HasRows)
+                {
+                    DataRow row = resdt.NewRow();
+                    for (int c = 0; c < dr.FieldCount; c++)
+                    {
+                        row[c] = Convert.ToString(dr[c]);
+                    }
+                    resdt.Rows.Add(row);
+                }
+                dr.Close();
+
+                oComm.Dispose();
+                this.oConn.Close();
+                return resdt;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return resdt;
+            }
+        }
     }
 }
